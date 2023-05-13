@@ -3,7 +3,7 @@ import { SafeAreaView, View, StyleSheet, Image, Modal } from "react-native";
 import LoginScreen from "./LoginScreen";
 import OTPScreen from "./OTPScreen";
 import Text from "../components/Text";
-import { Button, IconButton } from "react-native-paper";
+import { Button, Dialog, IconButton } from "react-native-paper";
 import {
   NavigationProp,
   ParamListBase,
@@ -11,10 +11,9 @@ import {
 } from "@react-navigation/native";
 import { Routes } from "../routes/availableRoutes";
 import { FirebaseRecaptchaVerifierModal } from "expo-firebase-recaptcha";
-import { auth, firebaseConfig } from "../firebase";
+import { firebaseConfig } from "../firebase";
 import UserContext from "../context/UserContext/UserContext";
-import { onAuthStateChanged } from "firebase/auth";
-// import { ApplicationVerifier } from "firebase/auth";
+import { IError } from "../utilities/types";
 
 interface AuthScreenProps {
   navigation: NavigationProp<ParamListBase>;
@@ -24,6 +23,10 @@ const AuthScreen = ({ navigation }: AuthScreenProps) => {
   const [page, setPage] = useState(0);
   const [countryCode, setCountryCode] = useState("");
   const [phone, setPhone] = useState("");
+  const [error, setError] = useState<IError>({
+    isError: false,
+    message: "No Error.",
+  });
 
   const recaptchaVerifier = useRef(null);
 
@@ -53,7 +56,7 @@ const AuthScreen = ({ navigation }: AuthScreenProps) => {
       recaptchaVerifier.current
     );
 
-    if (response === "success") {
+    if (response.status === "success") {
       nextPage();
     }
   };
@@ -81,7 +84,9 @@ const AuthScreen = ({ navigation }: AuthScreenProps) => {
           />
         );
       case 2:
-        return <OTPScreen navigate={navigate} />;
+        return (
+          <OTPScreen error={error} setError={setError} navigate={navigate} />
+        );
     }
   };
 
@@ -100,8 +105,25 @@ const AuthScreen = ({ navigation }: AuthScreenProps) => {
     },
   });
 
+  console.log(error);
+
   return (
     <SafeAreaView style={styles.container}>
+      <Dialog visible={error.isError} style={{ zIndex: 999999 }}>
+        <Dialog.Title>
+          <Text>Error</Text>
+        </Dialog.Title>
+        <Dialog.Content>
+          <Text>{error.message}</Text>
+        </Dialog.Content>
+        <Dialog.Actions>
+          <Button
+            onPress={() => setError({ isError: false, message: "No Error." })}
+          >
+            Close
+          </Button>
+        </Dialog.Actions>
+      </Dialog>
       <FirebaseRecaptchaVerifierModal
         ref={recaptchaVerifier}
         firebaseConfig={firebaseConfig}

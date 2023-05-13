@@ -1,7 +1,8 @@
 import React, { useEffect, useReducer, useState } from "react";
-import UserContext, { IUserContext } from "./UserContext";
+import UserContext, { IAuthResponse, IUserContext } from "./UserContext";
 import app, { auth } from "../../firebase";
 import {
+  AuthError,
   PhoneAuthProvider,
   User,
   onAuthStateChanged,
@@ -35,12 +36,12 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
         applicationVerifier
       );
       setVerificationId(verficationId);
-      return "success";
+      return { status: "success" } as IAuthResponse;
     } catch (error: any) {
       console.log(error);
       setIsError(true);
       setErrorMessage(error.messsage);
-      return error;
+      return { status: "error", error } as IAuthResponse;
     }
   };
 
@@ -52,23 +53,24 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
       );
       const response = await signInWithCredential(auth, credential);
       setUser(response.user);
-      return response.user;
+      return { status: "success", user: response.user } as IAuthResponse;
     } catch (error: any) {
       console.log(error);
       setIsError(true);
       setErrorMessage(error.message);
-      return error;
+      return { status: "error", error } as any;
     }
   };
 
   const signout = async () => {
     try {
       await signOut(auth);
+      return { status: "success" } as IAuthResponse;
     } catch (error: any) {
       console.log(error);
       setIsError(true);
       setErrorMessage(error.message);
-      return error;
+      return { status: "error", error } as IAuthResponse;
     }
   };
 

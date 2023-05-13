@@ -1,5 +1,11 @@
 import { createContext } from "react";
-import { User } from "firebase/auth";
+import { AuthError, User } from "firebase/auth";
+
+export interface IAuthResponse {
+  status: string;
+  user?: User;
+  error?: AuthError;
+}
 
 export interface IUserContext {
   user: User | null;
@@ -8,8 +14,8 @@ export interface IUserContext {
   getOtp: (
     phoneNumber: string,
     applicationVerifier: any
-  ) => Promise<string | Error>;
-  verifyOtp: (otp: string) => Promise<User | Error>;
+  ) => Promise<IAuthResponse>;
+  verifyOtp: (otp: string) => Promise<IAuthResponse>;
   signout: () => void;
   resetError: () => void;
 }
@@ -18,8 +24,8 @@ const initialContext: IUserContext = {
   user: null,
   isError: false,
   errorMessage: "No Error.",
-  getOtp: async (phoneNumber, applicationVerifier) => "",
-  verifyOtp: async (otp: string) => ({} as User),
+  getOtp: async (phoneNumber, applicationVerifier) => ({} as IAuthResponse),
+  verifyOtp: async (otp: string) => ({} as IAuthResponse),
   signout: async () => {},
   resetError: () => {},
 };
