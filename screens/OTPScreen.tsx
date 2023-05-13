@@ -35,7 +35,6 @@ const OTPScreen = ({ error, setError, navigate }: OTPScreenProps) => {
           errorMessage = "Something went wrong, Please try again later.";
       }
       setError({ isError: true, message: errorMessage });
-      console.log("=>", { isError: true, message: errorMessage });
     }
   };
 

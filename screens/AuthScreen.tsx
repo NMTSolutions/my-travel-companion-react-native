@@ -105,11 +105,31 @@ const AuthScreen = ({ navigation }: AuthScreenProps) => {
     },
   });
 
-  console.log(error);
-
   return (
-    <SafeAreaView style={styles.container}>
-      <Dialog visible={error.isError} style={{ zIndex: 999999 }}>
+    <SafeAreaView style={{ width: "100%", height: "100%" }}>
+      <View style={styles.container}>
+        <FirebaseRecaptchaVerifierModal
+          ref={recaptchaVerifier}
+          firebaseConfig={firebaseConfig}
+          // attemptInvisibleVerification
+        />
+        <Image style={styles.image} source={require("../assets/travel.png")} />
+        <Modal
+          animationType="slide"
+          visible={isAuthScreen && !error.isError}
+          transparent
+        >
+          <View style={modalStyles.modalContainer}>
+            {page !== 0 && (
+              <View style={styles.head}>
+                <IconButton icon={"arrow-left"} onPress={prevPage} />
+              </View>
+            )}
+            <View style={styles.modalContent}>{renderPage(page)}</View>
+          </View>
+        </Modal>
+      </View>
+      <Dialog visible={error.isError}>
         <Dialog.Title>
           <Text>Error</Text>
         </Dialog.Title>
@@ -124,22 +144,6 @@ const AuthScreen = ({ navigation }: AuthScreenProps) => {
           </Button>
         </Dialog.Actions>
       </Dialog>
-      <FirebaseRecaptchaVerifierModal
-        ref={recaptchaVerifier}
-        firebaseConfig={firebaseConfig}
-        // attemptInvisibleVerification
-      />
-      <Image style={styles.image} source={require("../assets/travel.png")} />
-      <Modal animationType="slide" visible={isAuthScreen} transparent>
-        <View style={modalStyles.modalContainer}>
-          {page !== 0 && (
-            <View style={styles.head}>
-              <IconButton icon={"arrow-left"} onPress={prevPage} />
-            </View>
-          )}
-          <View style={styles.modalContent}>{renderPage(page)}</View>
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 };
@@ -155,6 +159,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
+    width: "100%",
+    height: "100%",
   },
   image: {
     height: "100%",
