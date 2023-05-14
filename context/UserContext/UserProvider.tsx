@@ -8,6 +8,7 @@ import {
   onAuthStateChanged,
   signInWithCredential,
   signOut,
+  updateProfile,
 } from "firebase/auth";
 
 const UserProvider = ({ children }: { children: React.ReactNode }) => {
@@ -45,13 +46,23 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const verifyOtp = async (otp: string) => {
+  const verifyOtp = async (
+    otp: string,
+    username: string,
+    displayName: string
+  ) => {
     try {
       const credential = PhoneAuthProvider.credential(
         verficationId as string,
         otp
       );
       const response = await signInWithCredential(auth, credential);
+      await updateProfile(response.user, { displayName: username });
+      const accessToken = await response.user.getIdToken();
+      const res = await fetch(
+        `https://mytravelcompanion-55721-default-rtdb.firebaseio.com/users/${username}.json?auth=${accessToken}`,
+        { method: "POST", body: JSON.stringify({ username, displayName }) }
+      );
       setUser(response.user);
       return { status: "success", user: response.user } as IAuthResponse;
     } catch (error: any) {
