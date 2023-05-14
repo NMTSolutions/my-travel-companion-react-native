@@ -6,6 +6,7 @@ import DashboardScreen from "../screens/DashboardScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import CompanionsScreen from "../screens/CompanionsScreen";
 import FindCompanion from "../screens/FindCompanion";
+import NotificationsScreen from "../screens/NotificationsScreen";
 
 export interface IRoute {
   name: string;
@@ -26,6 +27,11 @@ const routes: IRoute[] = [
     name: "My Companions",
     path: Routes.MyCompanions,
     component: CompanionsScreen,
+  },
+  {
+    name: "Notification",
+    path: Routes.Notifications,
+    component: NotificationsScreen,
   },
   {
     name: "Find Companion",

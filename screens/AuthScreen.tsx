@@ -14,6 +14,7 @@ import { FirebaseRecaptchaVerifierModal } from "expo-firebase-recaptcha";
 import { firebaseConfig } from "../firebase";
 import UserContext from "../context/UserContext/UserContext";
 import { IError } from "../utilities/types";
+import GetUserInfoScreen from "./GetUserInfoScreen";
 
 interface AuthScreenProps {
   navigation: NavigationProp<ParamListBase>;
@@ -23,6 +24,7 @@ const AuthScreen = ({ navigation }: AuthScreenProps) => {
   const [page, setPage] = useState(0);
   const [countryCode, setCountryCode] = useState("");
   const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
   const [error, setError] = useState<IError>({
     isError: false,
     message: "No Error.",
@@ -84,8 +86,14 @@ const AuthScreen = ({ navigation }: AuthScreenProps) => {
           />
         );
       case 2:
+        return <OTPScreen otp={otp} setOtp={setOtp} nextPage={nextPage} />;
+      case 3:
         return (
-          <OTPScreen error={error} setError={setError} navigate={navigate} />
+          <GetUserInfoScreen
+            otp={otp}
+            setError={setError}
+            prevPage={prevPage}
+          />
         );
     }
   };

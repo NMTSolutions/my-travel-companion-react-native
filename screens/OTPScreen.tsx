@@ -10,34 +10,12 @@ import UserContext from "../context/UserContext/UserContext";
 import { IError } from "../utilities/types";
 
 interface OTPScreenProps {
-  error: IError;
-  setError: (error: IError) => void;
-  navigate: (route: string) => void;
+  otp: string;
+  setOtp: (text: string) => void;
+  nextPage: () => void;
 }
 
-const OTPScreen = ({ error, setError, navigate }: OTPScreenProps) => {
-  const [otp, setOtp] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-
-  const userContext = useContext(UserContext);
-
-  const verifyOTP = async () => {
-    setIsLoading(true);
-    const response = await userContext.verifyOtp(otp);
-    setIsLoading(false);
-    if (response.status === "error") {
-      let errorMessage;
-      switch (response.error?.code) {
-        case "auth/invalid-verification-code":
-          errorMessage = "You've entered wrong OTP. Please try again.";
-          break;
-        default:
-          errorMessage = "Something went wrong, Please try again later.";
-      }
-      setError({ isError: true, message: errorMessage });
-    }
-  };
-
+const OTPScreen = ({ otp, setOtp, nextPage }: OTPScreenProps) => {
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Enter OTP</Text>
@@ -49,15 +27,10 @@ const OTPScreen = ({ error, setError, navigate }: OTPScreenProps) => {
         keyboardType="number-pad"
         style={styles.textInput}
         placeholder="Enter OTP"
-        disabled={isLoading}
       />
-      {isLoading ? (
-        <ActivityIndicator size={40} />
-      ) : (
-        <Button mode="contained" onPress={verifyOTP}>
-          Submit
-        </Button>
-      )}
+      <Button mode="contained" onPress={nextPage}>
+        Next
+      </Button>
     </View>
   );
 };
