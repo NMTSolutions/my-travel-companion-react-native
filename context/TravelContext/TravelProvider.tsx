@@ -1,8 +1,10 @@
 import React, { useState, useContext } from "react";
-import TravelContext, { ICoordinates, ITravelContext } from "./TravelContext";
+import TravelContext, {
+  ICoordinates,
+  ITravelContext,
+  ITravelResponse,
+} from "./TravelContext";
 import UserContext from "../UserContext/UserContext";
-
-const baseUrl = "https://mytravelcompanion-55721-default-rtdb.firebaseio.com";
 
 const TravelProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLost, setIsLost] = useState(false);
@@ -10,9 +12,12 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
   const userContext = useContext(UserContext);
 
   const markLost = async (location: ICoordinates) => {
-    const response = await fetch(
-      baseUrl + `/users/${userContext.user?.displayName}/`
-    );
+    try {
+      return { status: "success" } as ITravelResponse;
+    } catch (error: any) {
+      console.log(error);
+      return { error } as ITravelResponse;
+    }
   };
 
   const context: ITravelContext = {
