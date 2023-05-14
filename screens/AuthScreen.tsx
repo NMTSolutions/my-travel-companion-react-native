@@ -88,7 +88,13 @@ const AuthScreen = ({ navigation }: AuthScreenProps) => {
       case 2:
         return <OTPScreen otp={otp} setOtp={setOtp} nextPage={nextPage} />;
       case 3:
-        return <GetUserInfoScreen otp={otp} setError={setError} />;
+        return (
+          <GetUserInfoScreen
+            otp={otp}
+            setError={setError}
+            prevPage={prevPage}
+          />
+        );
     }
   };
 

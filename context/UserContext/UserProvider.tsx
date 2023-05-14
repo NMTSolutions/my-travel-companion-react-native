@@ -46,7 +46,7 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const verifyOtp = async (
+  const registerUser = async (
     otp: string,
     username: string,
     displayName: string
@@ -95,7 +95,7 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
     isError,
     errorMessage,
     getOtp,
-    verifyOtp,
+    registerUser,
     signout,
     resetError,
   };

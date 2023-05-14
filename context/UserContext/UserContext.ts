@@ -15,7 +15,7 @@ export interface IUserContext {
     phoneNumber: string,
     applicationVerifier: any
   ) => Promise<IAuthResponse>;
-  verifyOtp: (
+  registerUser: (
     otp: string,
     username: string,
     displayName: string
@@ -29,7 +29,7 @@ const initialContext: IUserContext = {
   isError: false,
   errorMessage: "No Error.",
   getOtp: async (phoneNumber, applicationVerifier) => ({} as IAuthResponse),
-  verifyOtp: async (otp: string, username: string, displayName: string) =>
+  registerUser: async (otp: string, username: string, displayName: string) =>
     ({} as IAuthResponse),
   signout: async () => {},
   resetError: () => {},
