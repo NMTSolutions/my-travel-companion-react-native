@@ -10,6 +10,7 @@ import {
   signOut,
   updateProfile,
 } from "firebase/auth";
+import { getUserKey } from "../../utilities/utils";
 
 const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -57,12 +58,28 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
         otp
       );
       const response = await signInWithCredential(auth, credential);
-      await updateProfile(response.user, { displayName: username });
       const accessToken = await response.user.getIdToken();
+
+      const newAccountURL = `https://mytravelcompanion-55721-default-rtdb.firebaseio.com/users/${username}.json?auth=${accessToken}`;
+
+      const accountKey = getUserKey(response.user.displayName ?? "");
+
+      console.log(response.user.displayName);
+      console.log(accountKey);
+
+      const updateAccountURL = `https://mytravelcompanion-55721-default-rtdb.firebaseio.com/users/${username}/${accountKey}.json?auth=${accessToken}`;
+
       const res = await fetch(
-        `https://mytravelcompanion-55721-default-rtdb.firebaseio.com/users/${username}.json?auth=${accessToken}`,
-        { method: "POST", body: JSON.stringify({ username, displayName }) }
+        response.user.displayName ? updateAccountURL : newAccountURL,
+        {
+          method: response.user.displayName ? "PUT" : "POST",
+          body: JSON.stringify({ username, displayName }),
+        }
       );
+      const key = await res.json();
+      await updateProfile(response.user, {
+        displayName: username + `(${key.name})`,
+      });
       setUser(response.user);
       return { status: "success", user: response.user } as IAuthResponse;
     } catch (error: any) {
