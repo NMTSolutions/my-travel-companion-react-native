@@ -12,19 +12,30 @@ export interface ICompanion {
   location: ICoordinates;
 }
 
+export interface IAccount {
+  username: string;
+  displayName: string;
+  phoneNumber: string;
+}
+
 export interface ITravelResponse {
   status: string;
+  searchedAccounts?: IAccount[];
   error?: FirestoreError;
 }
 
 export interface ITravelContext {
   myCompanions: ICompanion[];
+  searchedAccounts: IAccount[];
   markLost: (location: ICoordinates) => Promise<ITravelResponse>;
+  searchAccounts: (searchKey: string) => Promise<ITravelResponse>;
 }
 
 const initialContext: ITravelContext = {
   myCompanions: [],
+  searchedAccounts: [],
   markLost: async (location: ICoordinates) => ({} as ITravelResponse),
+  searchAccounts: async (searchKey: string) => ({} as ITravelResponse),
 };
 
 const TravelContext = createContext(initialContext);
