@@ -3,10 +3,10 @@ export enum OperatingSystems {
   IOS = "ios",
 }
 
-export const getUserKey = (displayname: string) => {
-  const start = displayname.indexOf("(") + 1;
-  const end = displayname.indexOf(")", start);
-  return displayname.substring(start, end);
+export const getUserDocId = (displayName: string) => {
+  const start = displayName.indexOf("(") + 1;
+  const end = displayName.indexOf(")", start);
+  return displayName.substring(start, end);
 };
 
 export const chunkArrayInGroups = (array: unknown[], size: number) => {

@@ -1,8 +1,7 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useEffect, useState } from "react";
 import UserContext, { IAuthResponse, IUserContext } from "./UserContext";
-import app, { auth } from "../../firebase";
+import { auth, firestore } from "../../firebase";
 import {
-  AuthError,
   PhoneAuthProvider,
   User,
   onAuthStateChanged,
@@ -10,7 +9,8 @@ import {
   signOut,
   updateProfile,
 } from "firebase/auth";
-import { getUserKey } from "../../utilities/utils";
+import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
+import { getUserDocId } from "../../utilities/utils";
 
 const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -58,28 +58,35 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
         otp
       );
       const response = await signInWithCredential(auth, credential);
-      const accessToken = await response.user.getIdToken();
 
-      const newAccountURL = `https://mytravelcompanion-55721-default-rtdb.firebaseio.com/users/${username}.json?auth=${accessToken}`;
+      // const accessToken = await response.user.getIdToken();
 
-      const accountKey = getUserKey(response.user.displayName ?? "");
+      const isCreatingNewAccount = !response.user.displayName;
 
-      console.log(response.user.displayName);
-      console.log(accountKey);
+      if (isCreatingNewAccount) {
+        const docRef = await addDoc(collection(firestore, "users"), {
+          username,
+          displayName,
+          phoneNumber: response.user.phoneNumber,
+        });
 
-      const updateAccountURL = `https://mytravelcompanion-55721-default-rtdb.firebaseio.com/users/${username}/${accountKey}.json?auth=${accessToken}`;
+        await updateProfile(response.user, {
+          displayName: username + `(${docRef.id})`,
+        });
+      } else {
+        const userDocId = getUserDocId(response.user.displayName ?? "");
+        const userRef = doc(firestore, "users", userDocId);
 
-      const res = await fetch(
-        response.user.displayName ? updateAccountURL : newAccountURL,
-        {
-          method: response.user.displayName ? "PUT" : "POST",
-          body: JSON.stringify({ username, displayName }),
-        }
-      );
-      const key = await res.json();
-      await updateProfile(response.user, {
-        displayName: username + `(${key.name})`,
-      });
+        await updateDoc(userRef, {
+          username,
+          displayName,
+          phoneNumber: response.user.phoneNumber,
+        });
+        await updateProfile(response.user, {
+          displayName: username + `(${userDocId})`,
+        });
+      }
+
       setUser(response.user);
       return { status: "success", user: response.user } as IAuthResponse;
     } catch (error: any) {

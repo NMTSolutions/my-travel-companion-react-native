@@ -30,9 +30,7 @@ const ProfileScreen = () => {
                 <Text style={styles.tileLabel}>Username</Text>
                 <Text style={styles.tileContent}>Tauqeer14118</Text>
               </View>
-              <View>
-                {/* <IconButton icon="pencil" onPress={() => {}} /> */}
-              </View>
+              <View></View>
             </View>
             <View>
               <Text style={styles.tileDescription}>
@@ -43,18 +41,14 @@ const ProfileScreen = () => {
           </View>
         </View>
         <View style={[styles.usernameInfo, { marginTop: 20 }]}>
-          <View style={styles.tileIcon}>
-            {/* <IconButton icon="account" iconColor="gray" /> */}
-          </View>
+          <View style={styles.tileIcon}></View>
           <View style={styles.tileInfo}>
             <View style={styles.nameLabelCombo}>
               <View>
                 <Text style={styles.tileLabel}>Name</Text>
                 <Text style={styles.tileContent}>Tauqeer Khan</Text>
               </View>
-              <View>
-                {/* <IconButton icon="pencil" onPress={() => {}} /> */}
-              </View>
+              <View></View>
             </View>
             <View>
               <Text style={styles.tileDescription}>
@@ -112,7 +106,6 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "flex-start",
     justifyContent: "center",
-    // marginTop: 20,
   },
   nameLabelCombo: {
     flexDirection: "row",

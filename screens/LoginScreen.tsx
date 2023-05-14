@@ -1,11 +1,6 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import {
-  ActivityIndicator,
-  Button,
-  IconButton,
-  TextInput,
-} from "react-native-paper";
+import { ActivityIndicator, Button, TextInput } from "react-native-paper";
 
 interface LoginScreenProps {
   countryCode: string;

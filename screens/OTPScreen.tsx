@@ -1,13 +1,6 @@
-import React, { useContext, useState } from "react";
+import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import {
-  ActivityIndicator,
-  Button,
-  Dialog,
-  TextInput,
-} from "react-native-paper";
-import UserContext from "../context/UserContext/UserContext";
-import { IError } from "../utilities/types";
+import { Button, TextInput } from "react-native-paper";
 
 interface OTPScreenProps {
   otp: string;
