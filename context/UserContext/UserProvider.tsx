@@ -70,8 +70,6 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
           phoneNumber: response.user.phoneNumber,
         });
 
-        console.log(docRef);
-
         await updateProfile(response.user, {
           displayName: username + `(${docRef.id})`,
         });
