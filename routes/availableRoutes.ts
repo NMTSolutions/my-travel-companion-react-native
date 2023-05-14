@@ -4,4 +4,5 @@ export enum Routes {
   Profile = "/profile",
   SearchCompanions = "/search-companions",
   MyCompanions = "/my-companions",
+  Notifications = "/notifications",
 }
