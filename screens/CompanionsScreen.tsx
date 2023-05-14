@@ -117,7 +117,7 @@ const CompanionsScreen = ({ navigation }: ICompanionScreenProps) => {
                 <>
                   {travelContext.companionsRequests.map((account) => (
                     <ExpandableTile
-                      key={account.id}
+                      key={account.deleteId}
                       account={account}
                       isNewRequest
                     />
