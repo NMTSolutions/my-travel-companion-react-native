@@ -15,12 +15,14 @@ import { firebaseConfig } from "../firebase";
 import UserContext from "../context/UserContext/UserContext";
 import { IError } from "../utilities/types";
 import GetUserInfoScreen from "./GetUserInfoScreen";
+import { environment } from "../env";
 
 interface AuthScreenProps {
   navigation: NavigationProp<ParamListBase>;
 }
 
 const AuthScreen = ({ navigation }: AuthScreenProps) => {
+  const [isModalVisible, setIsModalVisible] = useState(true);
   const [page, setPage] = useState(0);
   const [countryCode, setCountryCode] = useState("");
   const [phone, setPhone] = useState("");
@@ -124,13 +126,24 @@ const AuthScreen = ({ navigation }: AuthScreenProps) => {
         <Image style={styles.image} source={require("../assets/travel.png")} />
         <Modal
           animationType="slide"
-          visible={isAuthScreen && !error.isError}
+          visible={isAuthScreen && !error.isError && isModalVisible}
           transparent
         >
           <View style={modalStyles.modalContainer}>
-            {page !== 0 && (
+            {(page !== 0 || environment === "development") && (
               <View style={styles.head}>
-                <IconButton icon={"arrow-left"} onPress={prevPage} />
+                {page !== 0 && (
+                  <IconButton icon={"arrow-left"} onPress={prevPage} />
+                )}
+                {environment === "development" && (
+                  <IconButton
+                    icon={"close"}
+                    onPress={() => {
+                      setIsModalVisible(false);
+                      setTimeout(() => setIsModalVisible(true), 2000);
+                    }}
+                  />
+                )}
               </View>
             )}
             <View style={styles.modalContent}>{renderPage(page)}</View>

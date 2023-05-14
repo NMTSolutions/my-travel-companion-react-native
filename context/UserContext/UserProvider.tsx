@@ -1,8 +1,7 @@
 import React, { useEffect, useReducer, useState } from "react";
 import UserContext, { IAuthResponse, IUserContext } from "./UserContext";
-import app, { auth } from "../../firebase";
+import app, { auth, firestore } from "../../firebase";
 import {
-  AuthError,
   PhoneAuthProvider,
   User,
   onAuthStateChanged,
@@ -10,6 +9,8 @@ import {
   signOut,
   updateProfile,
 } from "firebase/auth";
+import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
+import { getUserDocId } from "../../utilities/utils";
 
 const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -57,12 +58,37 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
         otp
       );
       const response = await signInWithCredential(auth, credential);
-      await updateProfile(response.user, { displayName: username });
-      const accessToken = await response.user.getIdToken();
-      const res = await fetch(
-        `https://mytravelcompanion-55721-default-rtdb.firebaseio.com/users/${username}.json?auth=${accessToken}`,
-        { method: "POST", body: JSON.stringify({ username, displayName }) }
-      );
+
+      // const accessToken = await response.user.getIdToken();
+
+      const isCreatingNewAccount = !response.user.displayName;
+
+      if (isCreatingNewAccount) {
+        const docRef = await addDoc(collection(firestore, "users"), {
+          username,
+          displayName,
+          phoneNumber: response.user.phoneNumber,
+        });
+
+        console.log(docRef);
+
+        await updateProfile(response.user, {
+          displayName: username + `(${docRef.id})`,
+        });
+      } else {
+        const userDocId = getUserDocId(response.user.displayName ?? "");
+        const userRef = doc(firestore, "users", userDocId);
+
+        await updateDoc(userRef, {
+          username,
+          displayName,
+          phoneNumber: response.user.phoneNumber,
+        });
+        await updateProfile(response.user, {
+          displayName: username + `(${userDocId})`,
+        });
+      }
+
       setUser(response.user);
       return { status: "success", user: response.user } as IAuthResponse;
     } catch (error: any) {
