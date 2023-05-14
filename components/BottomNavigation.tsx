@@ -11,7 +11,6 @@ interface IBottomNavigationProps {
 
 const navigationItems = [
   { name: "Dashboard", route: Routes.Dashboard, iconName: "home" },
-  { name: "Dashboard", route: Routes.Dashboard, iconName: "view-dashboard" },
   {
     name: "Search Companions",
     route: Routes.SearchCompanions,
@@ -21,6 +20,11 @@ const navigationItems = [
     name: "My Companions",
     route: Routes.MyCompanions,
     iconName: "account-supervisor",
+  },
+  {
+    name: "Notifications",
+    route: Routes.Notifications,
+    iconName: "bell",
   },
 ];
 
