@@ -183,8 +183,6 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
         return { ...account, deleteId: accountRequest.id } as IAccount;
       });
 
-      console.log(docData);
-
       setMyCompanions(docData);
 
       return {
