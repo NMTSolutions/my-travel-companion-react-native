@@ -88,11 +88,8 @@ const styles = StyleSheet.create({
   },
   subContainer: { height: "100%", width: "100%", padding: 20 },
   textInput: {
-    // marginLeft: 10,
-    // marginRight: 10,
     marginBottom: 20,
     borderRadius: 20,
-    // backgroundColor: "#ece7e5",
   },
   profileCard: {
     display: "flex",

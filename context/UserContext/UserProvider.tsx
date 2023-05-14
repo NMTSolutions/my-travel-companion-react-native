@@ -1,6 +1,6 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useEffect, useState } from "react";
 import UserContext, { IAuthResponse, IUserContext } from "./UserContext";
-import app, { auth, firestore } from "../../firebase";
+import { auth, firestore } from "../../firebase";
 import {
   PhoneAuthProvider,
   User,

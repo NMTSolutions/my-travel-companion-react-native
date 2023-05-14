@@ -1,4 +1,4 @@
-import React, { useRef, useState, useContext, useEffect } from "react";
+import React, { useRef, useState, useContext } from "react";
 import { SafeAreaView, View, StyleSheet, Image, Modal } from "react-native";
 import LoginScreen from "./LoginScreen";
 import OTPScreen from "./OTPScreen";

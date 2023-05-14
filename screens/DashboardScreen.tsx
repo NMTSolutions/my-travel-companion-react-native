@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
-// import Text from "../components/Text";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   Text,
@@ -38,8 +37,6 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
 
   const hideDialog = () => setVisible(false);
 
-  // let activeDialog: string = "";
-
   const dashboardActions: IDashboardAction[] = [
     {
       name: "mark-lost",
@@ -47,7 +44,6 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
       iconName: "cancel",
       iconColor: "red",
       onPress: () => {
-        // activeDialog = "mark-lost";
         showDialog();
       },
     },
@@ -57,7 +53,6 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
       iconName: "search-web",
       iconColor: "skyblue",
       onPress: () => {
-        // activeDialog = "search-lost-companions";
         // showDialog();
       },
     },
@@ -118,13 +113,6 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
               <List.Icon icon="search-web" />
             </View>
           </TouchableOpacity>
-          {/* <List.Item
-          style={styles.companionsList}
-          onPress={() => {}}
-          title="My Travel Companions"
-          left={(props) => <List.Icon {...props} icon="account-supervisor" />}
-          right={(props) => <List.Icon {...props} icon="menu-right" />}
-        /> */}
           <Grid
             columns={2}
             items={dashboardActions}
