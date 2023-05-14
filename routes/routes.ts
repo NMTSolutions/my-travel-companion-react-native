@@ -5,6 +5,7 @@ import AuthScreen from "../screens/AuthScreen";
 import DashboardScreen from "../screens/DashboardScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import CompanionsScreen from "../screens/CompanionsScreen";
+import FindCompanion from "../screens/FindCompanion";
 
 export interface IRoute {
   name: string;
@@ -25,6 +26,11 @@ const routes: IRoute[] = [
     name: "My Companions",
     path: Routes.MyCompanions,
     component: CompanionsScreen,
+  },
+  {
+    name: "Find Companion",
+    path: Routes.FindCompanion,
+    component: FindCompanion,
   },
 ];
 

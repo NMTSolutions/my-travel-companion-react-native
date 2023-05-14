@@ -1,6 +1,10 @@
 import React, { useState } from "react";
-import { View, StyleSheet, TouchableOpacity } from "react-native";
-// import Text from "../components/Text";
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   Text,
@@ -12,16 +16,18 @@ import {
   Provider,
   Avatar,
 } from "react-native-paper";
+import * as Location from "expo-location";
 import Grid from "../components/Grid";
 import { NavigationProp, ParamListBase } from "@react-navigation/native";
 import { Routes } from "../routes/availableRoutes";
 import BottomNavigation from "../components/BottomNavigation";
 import { getDialogContent } from "../utilities/content";
+import LostComapnionTile from "../components/LostComapnionTile";
+import { ICoordinates } from "../context/TravelContext/TravelContext";
 
 interface IDashboardProps {
   navigation: NavigationProp<ParamListBase>;
 }
-
 interface IDashboardAction {
   name: string;
   label: string;
@@ -33,12 +39,15 @@ interface IDashboardAction {
 const DashboardScreen = ({ navigation }: IDashboardProps) => {
   const [visible, setVisible] = useState(false);
   const [activeDialog, setActiveDialog] = useState("");
+  const [isFetchingLocation, setIsFetchingLocation] = useState(false);
+  const [isFetchingLocationSuccessful, setIsFetchingLocationSuccessful] =
+    useState(false);
+  const [isLocationAccessDenied, setIsLocationAccessDenied] = useState(false);
+  const [coordinates, setCoordinates] = useState<ICoordinates | null>(null);
 
   const showDialog = () => setVisible(true);
 
   const hideDialog = () => setVisible(false);
-
-  // let activeDialog: string = "";
 
   const dashboardActions: IDashboardAction[] = [
     {
@@ -47,7 +56,6 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
       iconName: "cancel",
       iconColor: "red",
       onPress: () => {
-        // activeDialog = "mark-lost";
         showDialog();
       },
     },
@@ -57,14 +65,13 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
       iconName: "search-web",
       iconColor: "skyblue",
       onPress: () => {
-        // activeDialog = "search-lost-companions";
         // showDialog();
       },
     },
   ];
 
-  const navigate = (route: string) => {
-    navigation.navigate(route);
+  const navigate = (route: string, params?: object) => {
+    navigation.navigate(route, params);
   };
 
   let dialogContent;
@@ -72,6 +79,57 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
   if (visible) {
     dialogContent = getDialogContent(activeDialog);
   }
+
+  const fetchLocation = async () => {
+    setIsFetchingLocation(true);
+    try {
+      let res = await Location.requestForegroundPermissionsAsync();
+      console.log(res);
+      if (res.status !== "granted") {
+        setIsLocationAccessDenied(true);
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      const latitude = location.coords.latitude;
+      const longitude = location.coords.longitude;
+
+      if (
+        (latitude !== undefined || latitude !== null) &&
+        (longitude !== undefined || longitude !== null)
+      ) {
+        setCoordinates({
+          latitude,
+          longitude,
+        });
+        setIsFetchingLocationSuccessful(true);
+      }
+    } catch (error: any) {
+      console.log(error.message);
+      switch (error.message) {
+        case "Location request failed due to unsatisfied device settings.":
+          setIsLocationAccessDenied(true);
+          break;
+      }
+    }
+
+    setIsFetchingLocation(false);
+    // You can now use the latitude and longitude values to fetch location data from an API
+  };
+
+  const handleDialogAction = (activeDialog: string) => {
+    switch (activeDialog) {
+      case "mark-lost":
+        fetchLocation();
+        break;
+    }
+    hideDialog();
+  };
+
+  const handleTryAgain = () => {
+    setIsLocationAccessDenied(false);
+    fetchLocation();
+  };
 
   return (
     <SafeAreaView style={styles.safeContainer}>
@@ -106,25 +164,7 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
               <List.Icon icon="menu-right" />
             </View>
           </TouchableOpacity>
-          <TouchableOpacity>
-            <View style={styles.lostCompanionMessage}>
-              <List.Icon icon="account-supervisor" />
-              <View>
-                <Text style={styles.listText}>
-                  Shabana Marked herself Lost.
-                </Text>
-                <Text style={styles.listSubText}>Find her.</Text>
-              </View>
-              <List.Icon icon="search-web" />
-            </View>
-          </TouchableOpacity>
-          {/* <List.Item
-          style={styles.companionsList}
-          onPress={() => {}}
-          title="My Travel Companions"
-          left={(props) => <List.Icon {...props} icon="account-supervisor" />}
-          right={(props) => <List.Icon {...props} icon="menu-right" />}
-        /> */}
+          <LostComapnionTile navigate={navigate} />
           <Grid
             columns={2}
             items={dashboardActions}
@@ -172,9 +212,60 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
               <Button
                 mode="contained"
                 style={{ width: 100 }}
-                onPress={hideDialog}
+                onPress={() => handleDialogAction(activeDialog)}
               >
                 {dialogContent?.action}
+              </Button>
+            </Dialog.Actions>
+          </Dialog>
+          <Dialog visible={isLocationAccessDenied} onDismiss={hideDialog}>
+            <Dialog.Title>Location Access Denied</Dialog.Title>
+            <Dialog.Content>
+              <Text variant="bodyMedium">
+                User denied location access. Please try again.
+              </Text>
+            </Dialog.Content>
+            <Dialog.Actions>
+              <Button onPress={hideDialog}>Cancel</Button>
+              <Button
+                mode="contained"
+                style={{ width: 100 }}
+                onPress={() => handleTryAgain()}
+              >
+                Try Again
+              </Button>
+            </Dialog.Actions>
+          </Dialog>
+          <Dialog visible={isFetchingLocation}>
+            <Dialog.Title>Fetching Location</Dialog.Title>
+            <Dialog.Content style={styles.fetchingLocationContent}>
+              <ActivityIndicator size={50} color={"#6750a4"} />
+              <Text
+                variant="bodyMedium"
+                style={{ padding: 10, marginLeft: 20 }}
+              >
+                Fetching your location to send to your companions.
+              </Text>
+            </Dialog.Content>
+          </Dialog>
+          <Dialog
+            visible={isFetchingLocationSuccessful}
+            onDismiss={() => setIsFetchingLocationSuccessful(false)}
+          >
+            <Dialog.Title>Location Fetch Successful</Dialog.Title>
+            <Dialog.Content style={styles.fetchingLocationContent}>
+              <Text variant="bodyMedium">
+                Your location has been fetched and sent to your companions.
+                Remain at your current location your companions will find you.
+              </Text>
+            </Dialog.Content>
+            <Dialog.Actions>
+              <Button
+                mode="contained"
+                style={{ width: 100 }}
+                onPress={() => setIsFetchingLocationSuccessful(false)}
+              >
+                Close
               </Button>
             </Dialog.Actions>
           </Dialog>
@@ -239,26 +330,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     borderRadius: 15,
   },
-  lostCompanionMessage: {
-    padding: 20,
-    marginTop: 20,
-    height: 100,
-    width: "100%",
-    backgroundColor: "#fbbbbb",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    flexDirection: "row",
-    borderRadius: 15,
-  },
   listText: {
     fontSize: 16,
     fontWeight: "500",
-  },
-  listSubText: {
-    fontSize: 14,
-    fontWeight: "400",
-    color: "grey",
   },
   gridTile: {
     backgroundColor: "#fff",
@@ -267,5 +341,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 20,
+  },
+  fetchingLocationContent: {
+    flexDirection: "row",
+    alignItems: "center",
   },
 });
