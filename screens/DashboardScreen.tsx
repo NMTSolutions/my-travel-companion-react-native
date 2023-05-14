@@ -291,6 +291,7 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingLeft: 20,
     paddingRight: 20,
+    paddingBottom: 85,
   },
   profileCard: {
     display: "flex",

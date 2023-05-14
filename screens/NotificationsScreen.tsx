@@ -21,7 +21,11 @@ const NotificationsScreen = ({ navigation }: INavigationsScreenProps) => {
       <View style={styles.subContainer}>
         <Text style={styles.heading}>Notifications</Text>
         {testNotification.map((notification) => (
-          <Tile iconName="bell-alert-outline" textContent={notification} />
+          <Tile
+            key={notification}
+            iconName="bell-alert-outline"
+            textContent={notification}
+          />
         ))}
       </View>
       <BottomNavigation navigation={navigation} />
@@ -36,7 +40,12 @@ const styles = StyleSheet.create({
     position: "relative",
     paddingTop: StatusBar.currentHeight,
   },
-  subContainer: { height: "100%", maxWidth: "100%", padding: 20 },
+  subContainer: {
+    height: "100%",
+    maxWidth: "100%",
+    padding: 20,
+    paddingBottom: 85,
+  },
   heading: { fontSize: 20, fontWeight: "600", marginBottom: 20 },
 });
 

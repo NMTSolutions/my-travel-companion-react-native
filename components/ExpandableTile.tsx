@@ -1,11 +1,50 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { Avatar, IconButton } from "react-native-paper";
+import { ActivityIndicator, Avatar, IconButton } from "react-native-paper";
+import TravelContext, {
+  IAccount,
+} from "../context/TravelContext/TravelContext";
+import { Routes } from "../routes/availableRoutes";
 
-const ExpandableTile = () => {
+const ExpandableTile = ({
+  account,
+  isNewRequest,
+  navigate,
+}: {
+  account: IAccount;
+  isNewRequest?: boolean;
+  navigate?: (route: string, params?: object) => void;
+}) => {
   const [expanded, setExpanded] = useState(false);
+  const [isAcceptingRequest, setIsAcceptingRequest] = useState(false);
+  const [isRejectingRequest, setIsRejectingRequest] = useState(false);
+  const [isRemovingCompanion, setIsRemovingCompanion] = useState(false);
+
+  const travelContext = useContext(TravelContext);
 
   const handlePress = () => setExpanded((prevState) => !prevState);
+
+  const acceptRequest = async () => {
+    setIsAcceptingRequest(true);
+    await travelContext.acceptCompanionRequest(account);
+    setIsAcceptingRequest(false);
+  };
+
+  const rejectRequest = async () => {
+    setIsRejectingRequest(true);
+    await travelContext.rejectCompanionRequest(account);
+    setIsRejectingRequest(false);
+  };
+
+  const handleSearchCompanionTap = () => {
+    navigate?.(Routes.FindCompanion, { name: account.displayName });
+  };
+
+  const removeCompanion = async () => {
+    setIsRemovingCompanion(true);
+    await travelContext.removeCompanion(account);
+    setIsRemovingCompanion(false);
+  };
 
   return (
     <>
@@ -13,14 +52,13 @@ const ExpandableTile = () => {
         <View style={styles.iconSet}>
           <Avatar.Image
             size={50}
-            // rounded
             source={{
               uri: "https://randomuser.me/api/portraits/men/36.jpg",
             }}
           />
           <View style={styles.profileInfo}>
-            <Text style={styles.greet}>Tauqeer14118</Text>
-            <Text style={styles.name}>Tauqeer Khan</Text>
+            <Text style={styles.greet}>{account.username}</Text>
+            <Text style={styles.name}>{account.displayName}</Text>
           </View>
         </View>
         <View>
@@ -29,14 +67,68 @@ const ExpandableTile = () => {
       </TouchableOpacity>
       {expanded && (
         <>
-          <TouchableOpacity style={styles.menuItem}>
-            <IconButton icon="search-web" size={25} />
-            <Text>Search Companion</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
-            <IconButton icon="cancel" size={25} />
-            <Text>Remove Companion</Text>
-          </TouchableOpacity>
+          {isNewRequest ? (
+            <>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={acceptRequest}
+                disabled={isAcceptingRequest}
+              >
+                {isAcceptingRequest ? (
+                  <ActivityIndicator
+                    size={25}
+                    color="#6750a4"
+                    style={{ padding: 14 }}
+                  />
+                ) : (
+                  <IconButton icon="account-plus" size={25} />
+                )}
+                <Text>Accept Request</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={rejectRequest}
+                disabled={isRejectingRequest}
+              >
+                {isRejectingRequest ? (
+                  <ActivityIndicator
+                    size={25}
+                    color="#6750a4"
+                    style={{ padding: 14 }}
+                  />
+                ) : (
+                  <IconButton icon="cancel" size={25} />
+                )}
+                <Text>Reject Request</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={handleSearchCompanionTap}
+              >
+                <IconButton icon="search-web" size={25} />
+                <Text>Search Companion</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={removeCompanion}
+                disabled={isRemovingCompanion}
+              >
+                {isRemovingCompanion ? (
+                  <ActivityIndicator
+                    size={25}
+                    color="#6750a4"
+                    style={{ padding: 14 }}
+                  />
+                ) : (
+                  <IconButton icon="cancel" size={25} />
+                )}
+                <Text>Remove Companion</Text>
+              </TouchableOpacity>
+            </>
+          )}
         </>
       )}
     </>

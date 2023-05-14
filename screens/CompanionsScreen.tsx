@@ -4,8 +4,8 @@ import {
   SafeAreaView,
   StatusBar,
   StyleSheet,
-  TouchableOpacity,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import Text from "../components/Text";
 import BottomNavigation from "../components/BottomNavigation";
@@ -14,18 +14,25 @@ import {
   ParamListBase,
   useNavigationState,
 } from "@react-navigation/native";
-import { Avatar, IconButton, TextInput } from "react-native-paper";
+import { TextInput } from "react-native-paper";
 import { Routes } from "../routes/availableRoutes";
 import ExpandableTile from "../components/ExpandableTile";
 import TravelContext from "../context/TravelContext/TravelContext";
+import CompanionTile from "../components/CompanionTile";
+import { getUserDocId } from "../utilities/utils";
+import UserContext from "../context/UserContext/UserContext";
 
 interface ICompanionScreenProps {
   navigation: NavigationProp<ParamListBase>;
 }
 const CompanionsScreen = ({ navigation }: ICompanionScreenProps) => {
   const [companionInfo, setCompanionInfo] = useState("");
+  const [isLoadingCompanions, setIsLoadingCompanions] = useState(false);
+  const [isLoadingCompanionRequests, setIsLoadingCompanionRequests] =
+    useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  const userContext = useContext(UserContext);
   const travelContext = useContext(TravelContext);
 
   const handleTextChange = async (text: string) => {
@@ -42,8 +49,42 @@ const CompanionsScreen = ({ navigation }: ICompanionScreenProps) => {
   };
 
   const navigationState = useNavigationState((state) => state);
+
   const isMyCompanionsScreen =
     navigationState.routes[navigationState.index].name === Routes.MyCompanions;
+
+  const myAccountDocId = getUserDocId(userContext.user?.displayName ?? "");
+
+  const availableSearchedAccounts = travelContext.searchedAccounts;
+  // const availableSearchedAccounts = travelContext.searchedAccounts.filter(
+  //   (account) => account.id !== myAccountDocId
+  // );
+
+  const navigate = (route: string, params?: object) => {
+    navigation.navigate(route, params);
+  };
+
+  const getCompanionRequests = async () => {
+    setIsLoadingCompanionRequests(true);
+    const myAccountId = getUserDocId(userContext.user?.displayName ?? "");
+    const response = await travelContext.getCompanionRequests(myAccountId);
+    setIsLoadingCompanionRequests(false);
+  };
+
+  const getCompanions = async () => {
+    setIsLoadingCompanions(true);
+    const myAccountId = getUserDocId(userContext.user?.displayName ?? "");
+    const response = await travelContext.getCompanions(myAccountId);
+    setIsLoadingCompanions(false);
+  };
+
+  useEffect(() => {
+    if (isMyCompanionsScreen) {
+      getCompanionRequests();
+      getCompanions();
+    }
+  }, []);
+
   return (
     <SafeAreaView style={styles.safeContainer}>
       <View style={styles.subContainer}>
@@ -62,65 +103,75 @@ const CompanionsScreen = ({ navigation }: ICompanionScreenProps) => {
             placeholder="Companion phone or username"
           />
         )}
-        {isMyCompanionsScreen ? (
-          <>
-            <ExpandableTile />
-            <ExpandableTile />
-            <ExpandableTile />
-          </>
-        ) : (
-          <>
-            {isLoading && (
-              <View>
-                <ActivityIndicator size={45} color="#6750a4" />
-              </View>
-            )}
-            {!isLoading &&
-              travelContext.searchedAccounts.length > 0 &&
-              travelContext.searchedAccounts.map((account) => (
-                <TouchableOpacity
-                  key={account.username}
-                  style={styles.profileCard}
-                  onPress={() => {}}
-                >
-                  <View style={styles.iconSet}>
-                    <Avatar.Image
-                      size={50}
-                      // rounded
-                      source={{
-                        uri: "https://randomuser.me/api/portraits/men/36.jpg",
-                      }}
+        <ScrollView>
+          {isMyCompanionsScreen ? (
+            <>
+              <Text
+                style={styles.subheading}
+              >{`New Requests (${travelContext.companionsRequests.length})`}</Text>
+              {isLoadingCompanionRequests ? (
+                <View>
+                  <ActivityIndicator size={45} color="#6750a4" />
+                </View>
+              ) : (
+                <>
+                  {travelContext.companionsRequests.map((account) => (
+                    <ExpandableTile
+                      key={account.id}
+                      account={account}
+                      isNewRequest
                     />
-                    <View style={styles.profileInfo}>
-                      <Text style={styles.greet}>{account.username}</Text>
-                      <Text style={styles.name}>{account.displayName}</Text>
-                    </View>
-                  </View>
-                  <View>
-                    <IconButton
-                      size={25}
-                      icon="account-plus"
-                      onPress={() => {}}
+                  ))}
+                </>
+              )}
+              <Text
+                style={styles.subheading}
+              >{`Your Companions (${travelContext.myCompanions.length})`}</Text>
+              {isLoadingCompanions ? (
+                <View>
+                  <ActivityIndicator size={45} color="#6750a4" />
+                </View>
+              ) : (
+                <>
+                  {travelContext.myCompanions.map((companion) => (
+                    <ExpandableTile
+                      key={companion.deleteId}
+                      account={companion}
+                      navigate={navigate}
                     />
-                  </View>
-                </TouchableOpacity>
-              ))}
-            {!isLoading &&
-              companionInfo.length > 0 &&
-              travelContext.searchedAccounts.length === 0 && (
-                <View style={styles.messageTextContainer}>
-                  <Text style={styles.messageText}>No companion found.</Text>
+                  ))}
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              {isLoading && (
+                <View>
+                  <ActivityIndicator size={45} color="#6750a4" />
                 </View>
               )}
-            {!isLoading && companionInfo.length === 0 && (
-              <View style={styles.messageTextContainer}>
-                <Text style={styles.messageText}>
-                  Search companions by username or phone.
-                </Text>
-              </View>
-            )}
-          </>
-        )}
+              {!isLoading &&
+                availableSearchedAccounts.length > 0 &&
+                availableSearchedAccounts.map((account) => (
+                  <CompanionTile key={account.id} account={account} />
+                ))}
+              {!isLoading &&
+                companionInfo.length > 0 &&
+                availableSearchedAccounts.length === 0 && (
+                  <View style={styles.messageTextContainer}>
+                    <Text style={styles.messageText}>No companion found.</Text>
+                  </View>
+                )}
+              {!isLoading && companionInfo.length === 0 && (
+                <View style={styles.messageTextContainer}>
+                  <Text style={styles.messageText}>
+                    Search companions by username or phone.
+                  </Text>
+                </View>
+              )}
+            </>
+          )}
+        </ScrollView>
       </View>
       <BottomNavigation navigation={navigation} />
     </SafeAreaView>
@@ -137,40 +188,16 @@ const styles = StyleSheet.create({
     position: "relative",
     paddingTop: StatusBar.currentHeight,
   },
-  subContainer: { height: "100%", width: "100%", padding: 20 },
+  subContainer: {
+    height: "100%",
+    width: "100%",
+    padding: 20,
+    paddingBottom: 85,
+  },
+  subheading: { color: "grey", marginTop: 5, marginBottom: 10 },
   textInput: {
     marginBottom: 20,
     borderRadius: 20,
-  },
-  profileCard: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    height: 70,
-    backgroundColor: "#fff",
-    borderRadius: 15,
-    overflow: "hidden",
-    padding: 15,
-  },
-  iconSet: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  profileInfo: {
-    height: "100%",
-    display: "flex",
-    marginLeft: 10,
-    justifyContent: "space-around",
-  },
-  greet: {
-    fontSize: 12,
-    color: "gray",
-  },
-  name: {
-    fontSize: 18,
-    fontWeight: "bold",
   },
   messageTextContainer: {
     marginTop: 10,
