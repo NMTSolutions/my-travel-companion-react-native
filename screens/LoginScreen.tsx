@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { ActivityIndicator, Button, TextInput } from "react-native-paper";
+import { StyleSheet, Text, View, ActivityIndicator } from "react-native";
+import { Button, TextInput } from "react-native-paper";
 
 interface LoginScreenProps {
   countryCode: string;
@@ -51,7 +51,7 @@ const LoginScreen = ({
         disabled={isLoggingIn}
       />
       {isLoggingIn ? (
-        <ActivityIndicator size={40} />
+        <ActivityIndicator size={40} color="#6750a4" />
       ) : (
         <Button mode="contained" onPress={handleGetOTP} disabled={isLoggingIn}>
           Get OTP
