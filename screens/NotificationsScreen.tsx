@@ -1,6 +1,12 @@
 import React from "react";
 import { Text } from "react-native-paper";
-import { SafeAreaView, StatusBar, StyleSheet, View } from "react-native";
+import {
+  FlatList,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  View,
+} from "react-native";
 import { NavigationProp, ParamListBase } from "@react-navigation/native";
 import BottomNavigation from "../components/BottomNavigation";
 import Tile from "../components/Tile";
@@ -13,6 +19,36 @@ const testNotification = [
   "Tauqeer marked himself as lost!, wanna find him?",
   "Wafa marked himself as lost!, wanna find him?",
   "Karim marked himself as lost!, wanna find him?",
+  "Tauqeer marked himself as lost!, wanna find him?",
+  "Wafa marked himself as lost!, wanna find him?",
+  "Karim marked himself as lost!, wanna find him?",
+  "Tauqeer marked himself as lost!, wanna find him?",
+  "Wafa marked himself as lost!, wanna find him?",
+  "Karim marked himself as lost!, wanna find him?",
+  "Tauqeer marked himself as lost!, wanna find him?",
+  "Wafa marked himself as lost!, wanna find him?",
+  "Karim marked himself as lost!, wanna find him?",
+  "Tauqeer marked himself as lost!, wanna find him?",
+  "Wafa marked himself as lost!, wanna find him?",
+  "Karim marked himself as lost!, wanna find him?",
+  "Tauqeer marked himself as lost!, wanna find him?",
+  "Wafa marked himself as lost!, wanna find him?",
+  "Karim marked himself as lost!, wanna find him?",
+  "Tauqeer marked himself as lost!, wanna find him?",
+  "Wafa marked himself as lost!, wanna find him?",
+  "Karim marked himself as lost!, wanna find him?",
+  "Tauqeer marked himself as lost!, wanna find him?",
+  "Wafa marked himself as lost!, wanna find him?",
+  "Karim marked himself as lost!, wanna find him?",
+  "Tauqeer marked himself as lost!, wanna find him?",
+  "Wafa marked himself as lost!, wanna find him?",
+  "Karim marked himself as lost!, wanna find him?",
+  "Tauqeer marked himself as lost!, wanna find him?",
+  "Wafa marked himself as lost!, wanna find him?",
+  "Karim marked himself as lost!, wanna find him?",
+  "Tauqeer marked himself as lost!, wanna find him?",
+  "Wafa marked himself as lost!, wanna find him?",
+  "Karim marked himself as lost!, wanna find him?",
 ];
 
 const NotificationsScreen = ({ navigation }: INavigationsScreenProps) => {
@@ -20,13 +56,16 @@ const NotificationsScreen = ({ navigation }: INavigationsScreenProps) => {
     <SafeAreaView style={styles.safeContainer}>
       <View style={styles.subContainer}>
         <Text style={styles.heading}>Notifications</Text>
-        {testNotification.map((notification) => (
-          <Tile
-            key={notification}
-            iconName="bell-alert-outline"
-            textContent={notification}
-          />
-        ))}
+        <FlatList
+          data={testNotification}
+          renderItem={(notification) => (
+            <Tile
+              key={notification.item}
+              iconName="bell-alert-outline"
+              textContent={notification.item}
+            />
+          )}
+        />
       </View>
       <BottomNavigation navigation={navigation} />
     </SafeAreaView>
