@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
   companionsList: {
     padding: 20,
     marginTop: 20,
-    height: 80,
+    // height: 80,
     width: "100%",
     backgroundColor: "#fff",
     display: "flex",

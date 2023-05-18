@@ -143,10 +143,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    height: 80,
+    // height: 80,
     backgroundColor: "#fff",
     borderRadius: 15,
-    padding: 15,
+    padding: 10,
     marginBottom: 5,
   },
   iconSet: {
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   profileInfo: {
-    height: "100%",
+    // height: "100%",
     display: "flex",
     marginLeft: 10,
     justifyContent: "space-around",
