@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, View, TouchableOpacity } from "react-native";
+import { StyleSheet, View, TouchableOpacity, FlatList } from "react-native";
 import { chunkArrayInGroups } from "../utilities/utils";
 
 const Grid = ({
@@ -36,11 +36,14 @@ const Grid = ({
 
   return (
     <View style={styles.container}>
-      {convertedInRows.map((rows, rowIndex) => (
-        <View key={rowIndex} style={styles.row}>
-          {rows.map((item, cellIndex) => getView(item, cellIndex))}
-        </View>
-      ))}
+      <FlatList
+        data={convertedInRows}
+        renderItem={(rows) => (
+          <View key={rows.index} style={styles.row}>
+            {rows.item.map((item, cellIndex) => getView(item, cellIndex))}
+          </View>
+        )}
+      />
     </View>
   );
 };
