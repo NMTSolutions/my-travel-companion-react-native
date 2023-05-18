@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    height: 70,
+    height: 80,
     backgroundColor: "#fff",
     borderRadius: 15,
     overflow: "hidden",
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     color: "gray",
   },
   name: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: "bold",
   },
 });

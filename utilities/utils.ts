@@ -9,6 +9,11 @@ export const getUserDocId = (displayName: string) => {
   return displayName.substring(start, end);
 };
 
+export const getUsername = (displayName: string) => {
+  const end = displayName.indexOf("(");
+  return displayName.substring(0, end);
+};
+
 export const chunkArrayInGroups = (array: unknown[], size: number) => {
   let temp = [];
   const result = [];

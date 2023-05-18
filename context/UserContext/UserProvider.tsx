@@ -9,11 +9,23 @@ import {
   signOut,
   updateProfile,
 } from "firebase/auth";
-import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDocs,
+  query,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import { getUserDocId } from "../../utilities/utils";
+import { IAccount } from "../TravelContext/TravelContext";
 
 const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [myAccount, setMyAccount] = useState<IAccount | null>(null);
   const [verficationId, setVerificationId] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("No Error.");
@@ -64,27 +76,55 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
       const isCreatingNewAccount = !response.user.displayName;
 
       if (isCreatingNewAccount) {
-        const docRef = await addDoc(collection(firestore, "users"), {
-          username,
-          displayName,
-          phoneNumber: response.user.phoneNumber,
-        });
+        const docRef = await setDoc(
+          doc(firestore, "users", response.user.uid),
+          {
+            id: response.user.uid,
+            username,
+            displayName,
+            phoneNumber: response.user.phoneNumber,
+            accountCreatedOn: serverTimestamp(),
+          }
+        );
 
         await updateProfile(response.user, {
-          displayName: username + `(${docRef.id})`,
+          displayName: username,
+        });
+
+        setMyAccount({
+          id: response.user.uid,
+          displayName,
+          username,
+          phoneNumber: response.user.phoneNumber as string,
+          accountCreatedOn: serverTimestamp(),
         });
       } else {
-        const userDocId = getUserDocId(response.user.displayName ?? "");
-        const userRef = doc(firestore, "users", userDocId);
+        const userRef = collection(firestore, "users");
 
-        await updateDoc(userRef, {
-          username,
+        const searchQuery = query(
+          userRef,
+          where("id", "==", response.user.uid)
+        );
+
+        await setDoc(doc(firestore, "users", response.user.uid), {
+          id: response.user.uid,
           displayName,
-          phoneNumber: response.user.phoneNumber,
+          username,
+          phoneNumber: response.user.phoneNumber as string,
+          accountCreatedOn: serverTimestamp(),
         });
+
+        const querySnapshot = await getDocs(searchQuery);
+
+        const myAcc = querySnapshot.docs.map((acc) => {
+          return acc.data() as IAccount;
+        });
+
         await updateProfile(response.user, {
-          displayName: username + `(${userDocId})`,
+          displayName: username,
         });
+
+        setMyAccount(myAcc[0]);
       }
 
       setUser(response.user);
@@ -115,7 +155,8 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const context: IUserContext = {
-    user: user,
+    user,
+    myAccount,
     isError,
     errorMessage,
     getOtp,

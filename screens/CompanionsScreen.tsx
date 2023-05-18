@@ -17,7 +17,9 @@ import {
 import { TextInput } from "react-native-paper";
 import { Routes } from "../routes/availableRoutes";
 import ExpandableTile from "../components/ExpandableTile";
-import TravelContext from "../context/TravelContext/TravelContext";
+import TravelContext, {
+  ICompanion,
+} from "../context/TravelContext/TravelContext";
 import CompanionTile from "../components/CompanionTile";
 import { getUserDocId } from "../utilities/utils";
 import UserContext from "../context/UserContext/UserContext";
@@ -66,24 +68,22 @@ const CompanionsScreen = ({ navigation }: ICompanionScreenProps) => {
 
   const getCompanionRequests = async () => {
     setIsLoadingCompanionRequests(true);
-    const myAccountId = getUserDocId(userContext.user?.displayName ?? "");
-    const response = await travelContext.getCompanionRequests(myAccountId);
+    const response = await travelContext.getCompanionRequests();
     setIsLoadingCompanionRequests(false);
   };
 
   const getCompanions = async () => {
     setIsLoadingCompanions(true);
-    const myAccountId = getUserDocId(userContext.user?.displayName ?? "");
-    const response = await travelContext.getCompanions(myAccountId);
+    const response = await travelContext.getCompanions();
     setIsLoadingCompanions(false);
   };
 
-  useEffect(() => {
-    if (isMyCompanionsScreen) {
-      getCompanionRequests();
-      getCompanions();
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (isMyCompanionsScreen) {
+  //     getCompanionRequests();
+  //     getCompanions();
+  //   }
+  // }, [isMyCompanionsScreen, userContext.user]);
 
   return (
     <SafeAreaView style={styles.safeContainer}>
@@ -100,7 +100,7 @@ const CompanionsScreen = ({ navigation }: ICompanionScreenProps) => {
             right={<TextInput.Icon icon="magnify" onPress={handleSearchTap} />}
             keyboardType="default"
             style={styles.textInput}
-            placeholder="Companion phone or username"
+            placeholder="Search companions"
           />
         )}
         <ScrollView>
@@ -115,10 +115,10 @@ const CompanionsScreen = ({ navigation }: ICompanionScreenProps) => {
                 </View>
               ) : (
                 <>
-                  {travelContext.companionsRequests.map((account) => (
+                  {travelContext.companionsRequests.map((request) => (
                     <ExpandableTile
-                      key={account.deleteId}
-                      account={account}
+                      key={request.companionRequestId}
+                      companion={request}
                       isNewRequest
                     />
                   ))}
@@ -135,8 +135,8 @@ const CompanionsScreen = ({ navigation }: ICompanionScreenProps) => {
                 <>
                   {travelContext.myCompanions.map((companion) => (
                     <ExpandableTile
-                      key={companion.deleteId}
-                      account={companion}
+                      key={companion.companionId}
+                      companion={companion}
                       navigate={navigate}
                     />
                   ))}

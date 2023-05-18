@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Button, Text, TextInput } from "react-native-paper";
 import { StyleSheet, View, ActivityIndicator } from "react-native";
 import UserContext from "../context/UserContext/UserContext";
@@ -52,6 +52,9 @@ const GetUserInfoScreen = ({
 
   const handleUsernameChange = async (username: string) => {
     setUsername(username);
+  };
+
+  useEffect(() => {
     const timer = setTimeout(async () => {
       setIsLoadingUsernameAvailability(true);
       const { searchedAccounts } = await travelContext.searchAccounts(username);
@@ -62,7 +65,8 @@ const GetUserInfoScreen = ({
       }
       setIsLoadingUsernameAvailability(false);
     }, 500);
-  };
+    return () => clearTimeout(timer);
+  }, [username]);
 
   return (
     <View style={styles.container}>

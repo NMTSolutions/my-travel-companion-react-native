@@ -3,15 +3,17 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { ActivityIndicator, Avatar, IconButton } from "react-native-paper";
 import TravelContext, {
   IAccount,
+  ICompanion,
+  ICompanionRequest,
 } from "../context/TravelContext/TravelContext";
 import { Routes } from "../routes/availableRoutes";
 
 const ExpandableTile = ({
-  account,
+  companion,
   isNewRequest,
   navigate,
 }: {
-  account: IAccount;
+  companion: ICompanion | ICompanionRequest;
   isNewRequest?: boolean;
   navigate?: (route: string, params?: object) => void;
 }) => {
@@ -26,23 +28,23 @@ const ExpandableTile = ({
 
   const acceptRequest = async () => {
     setIsAcceptingRequest(true);
-    await travelContext.acceptCompanionRequest(account);
+    await travelContext.acceptCompanionRequest(companion);
     setIsAcceptingRequest(false);
   };
 
   const rejectRequest = async () => {
     setIsRejectingRequest(true);
-    await travelContext.rejectCompanionRequest(account);
+    await travelContext.rejectCompanionRequest(companion);
     setIsRejectingRequest(false);
   };
 
   const handleSearchCompanionTap = () => {
-    navigate?.(Routes.FindCompanion, { name: account.displayName });
+    navigate?.(Routes.FindCompanion, { name: companion.displayName });
   };
 
   const removeCompanion = async () => {
     setIsRemovingCompanion(true);
-    await travelContext.removeCompanion(account);
+    await travelContext.removeCompanion(companion as ICompanion);
     setIsRemovingCompanion(false);
   };
 
@@ -57,8 +59,8 @@ const ExpandableTile = ({
             }}
           />
           <View style={styles.profileInfo}>
-            <Text style={styles.greet}>{account.username}</Text>
-            <Text style={styles.name}>{account.displayName}</Text>
+            <Text style={styles.greet}>{companion.username}</Text>
+            <Text style={styles.name}>{companion.displayName}</Text>
           </View>
         </View>
         <View>
@@ -141,7 +143,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    height: 70,
+    height: 80,
     backgroundColor: "#fff",
     borderRadius: 15,
     padding: 15,
@@ -163,7 +165,7 @@ const styles = StyleSheet.create({
     color: "gray",
   },
   name: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: "bold",
   },
   menuItem: {
