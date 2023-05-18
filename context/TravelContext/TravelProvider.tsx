@@ -4,8 +4,12 @@ import TravelContext, {
   ICompanion,
   ICompanionRequest,
   ICoordinates,
+  ILostCompanion,
+  ILostMessage,
+  INotification,
   ITravelContext,
   ITravelResponse,
+  NotificationType,
 } from "./TravelContext";
 import UserContext from "../UserContext/UserContext";
 import {
@@ -22,10 +26,12 @@ import {
   writeBatch,
 } from "firebase/firestore";
 import { firestore } from "../../firebase";
-import { getUserDocId } from "../../utilities/utils";
 
 const TravelProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLost, setIsLost] = useState(false);
+  const [lostComapnion, setLostCompanion] = useState<ILostCompanion | null>(
+    null
+  );
   const [searchedAccounts, setSearchedAccounts] = useState<IAccount[]>([]);
   const [companionsRequests, setCompanionsRequests] = useState<
     ICompanionRequest[]
@@ -34,14 +40,24 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
 
   const userContext = useContext(UserContext);
 
-  const markLost = async (location: ICoordinates) => {
+  const sendNotification = async (
+    toUid: string,
+    notification: INotification
+  ) => {
     try {
-      const myAccountDocId = getUserDocId(userContext.user?.displayName ?? "");
+      const companionNotifRef = doc(firestore, "myNotifications", toUid);
 
-      return { status: "success" } as ITravelResponse;
+      const companionNotifCollection = collection(
+        companionNotifRef,
+        "notifications"
+      );
+
+      const notifRef = await addDoc(companionNotifCollection, notification);
+
+      return { status: "success", notifId: notifRef.id } as ITravelResponse;
     } catch (error: any) {
       console.log(error);
-      return { error } as ITravelResponse;
+      return { status: "error", error } as ITravelResponse;
     }
   };
 
@@ -106,6 +122,14 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
         ...myAccount,
         companionRequestSentOn: serverTimestamp(),
       });
+
+      const notification: INotification = {
+        type: NotificationType.CompanionRequest,
+        message: `${myAccount?.displayName} sent a companion request.`,
+        time: serverTimestamp(),
+      };
+
+      await sendNotification(account.id, notification);
 
       return { status: "success", docId: docRef.id } as ITravelResponse;
     } catch (error: any) {
@@ -219,6 +243,14 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
         await deleteDoc(docRef);
       }
 
+      const notification: INotification = {
+        type: NotificationType.CompanionRequestAccepted,
+        message: `${myAccount?.displayName} accepted your companion request.`,
+        time: serverTimestamp(),
+      };
+
+      await sendNotification(request.id, notification);
+
       await batch.commit();
 
       return { status: "success", docId: docRef.id } as ITravelResponse;
@@ -232,6 +264,8 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const user = userContext.user;
 
+      const myAccount = userContext.myAccount;
+
       const companionRequestDocRef = doc(
         firestore,
         "companionRequests",
@@ -240,6 +274,14 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
         request.companionRequestId
       );
       await deleteDoc(companionRequestDocRef);
+
+      const notification: INotification = {
+        type: NotificationType.CompanionRequestRejected,
+        message: `${myAccount?.displayName} rejected your companion request.`,
+        time: serverTimestamp(),
+      };
+
+      await sendNotification(request.id, notification);
 
       setCompanionsRequests((prevRequests) =>
         prevRequests.filter(
@@ -326,6 +368,14 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
         await deleteDoc(docRef);
       }
 
+      const notification: INotification = {
+        type: NotificationType.RemovedFromCompanions,
+        message: `${myAccount?.displayName} removed you from their companions.`,
+        time: serverTimestamp(),
+      };
+
+      await sendNotification(companion.id, notification);
+
       await batch.commit();
 
       setMyCompanions((prevCompanions) =>
@@ -333,6 +383,59 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
       );
 
       return { status: "success" } as ITravelResponse;
+    } catch (error: any) {
+      console.log(error);
+      return { status: "error", error } as ITravelResponse;
+    }
+  };
+
+  const markLost = async (location: ICoordinates) => {
+    try {
+      const lostCompanion: ILostCompanion = {
+        companion: userContext.myAccount as IAccount,
+        coordinates: location,
+        lostOn: serverTimestamp(),
+      };
+
+      const lostMsgsSentTo: ILostMessage[] = [];
+
+      for (const companion of myCompanions) {
+        const lostCompanionsDocRef = doc(
+          firestore,
+          "myLostCompanions",
+          companion.id
+        );
+
+        const lostCompanionsCollectionRef = collection(
+          lostCompanionsDocRef,
+          "lostCompanions"
+        );
+
+        const docRef = await addDoc(lostCompanionsCollectionRef, lostCompanion);
+
+        const notification: INotification = {
+          type: NotificationType.LostNotification,
+          message: `${lostComapnion?.companion.displayName} marked themself as lost.`,
+          time: serverTimestamp(),
+        };
+
+        const notifRes = await sendNotification(companion.id, notification);
+
+        lostMsgsSentTo.push({
+          companion,
+          status: docRef.id ? "success" : "fail",
+          notificationStatus: notifRes.notifId ? "success" : "fail",
+          lostMessageSentOn: serverTimestamp(),
+        });
+      }
+
+      setIsLost(true);
+      setLostCompanion(lostCompanion);
+      return {
+        status: "success",
+        message: `Lost message sent to ${lostMsgsSentTo.length} companions.`,
+        lostMsgsSentTo,
+      } as ITravelResponse;
     } catch (error: any) {
       console.log(error);
       return { status: "error", error } as ITravelResponse;

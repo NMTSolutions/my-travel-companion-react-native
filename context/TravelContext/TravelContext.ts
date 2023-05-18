@@ -6,6 +6,12 @@ export interface ICoordinates {
   longitude: number;
 }
 
+export interface ILostCompanion {
+  companion: IAccount;
+  coordinates: ICoordinates;
+  lostOn: FieldValue;
+}
+
 export interface IAccount {
   id: string;
   username: string;
@@ -36,6 +42,28 @@ export interface ICompanion {
   companionRequestAcceptedOn: FieldValue;
 }
 
+export interface ILostMessage {
+  companion: IAccount;
+  status: "success" | "fail";
+  notificationStatus: "success" | "fail";
+  lostMessageSentOn: FieldValue;
+}
+
+export enum NotificationType {
+  CompanionRequest = "companion-request",
+  CompanionRequestAccepted = "companion-request-accepted",
+  CompanionRequestRejected = "companion-request-rejected",
+  RemovedFromCompanions = "removed-from-companions",
+  LostNotification = "lost-notification",
+  FoundNotification = "found-notification",
+}
+
+export interface INotification {
+  type: NotificationType;
+  message: string;
+  time: FieldValue;
+}
+
 export interface ITravelResponse {
   status: string;
   docId?: string;
@@ -43,6 +71,9 @@ export interface ITravelResponse {
   companionsRequests?: ICompanionRequest[];
   myCompanions?: ICompanion[];
   error?: FirestoreError;
+  message?: string;
+  lostMsgsSentTo?: ILostMessage[];
+  notifId?: string;
 }
 
 export interface ITravelContext {

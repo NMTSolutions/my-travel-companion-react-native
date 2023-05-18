@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   View,
   StyleSheet,
@@ -23,7 +23,9 @@ import { Routes } from "../routes/availableRoutes";
 import BottomNavigation from "../components/BottomNavigation";
 import { getDialogContent } from "../utilities/content";
 import LostComapnionTile from "../components/LostComapnionTile";
-import { ICoordinates } from "../context/TravelContext/TravelContext";
+import TravelContext, {
+  ICoordinates,
+} from "../context/TravelContext/TravelContext";
 
 interface IDashboardProps {
   navigation: NavigationProp<ParamListBase>;
@@ -44,6 +46,8 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
     useState(false);
   const [isLocationAccessDenied, setIsLocationAccessDenied] = useState(false);
   const [coordinates, setCoordinates] = useState<ICoordinates | null>(null);
+
+  const travelContext = useContext(TravelContext);
 
   const showDialog = () => setVisible(true);
 
@@ -90,9 +94,12 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
         return;
       }
 
-      const location = await Location.getCurrentPositionAsync({});
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.LocationAccuracy.BestForNavigation,
+      });
       const latitude = location.coords.latitude;
       const longitude = location.coords.longitude;
+      console.log(latitude, longitude);
 
       if (
         (latitude !== undefined || latitude !== null) &&
@@ -102,6 +109,11 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
           latitude,
           longitude,
         });
+
+        const response = await travelContext.markLost({ latitude, longitude });
+
+        console.log(response);
+
         setIsFetchingLocationSuccessful(true);
       }
     } catch (error: any) {
