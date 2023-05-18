@@ -23,7 +23,7 @@ const LostComapnionTile = ({ navigate }: ILostCompanionTileProps) => {
           <Text style={styles.listText}>Shabana Marked herself Lost.</Text>
           <Text style={styles.listSubText}>Find her.</Text>
         </View>
-        <List.Icon style={{ flex: 1 }} icon="search-web" />
+        <List.Icon style={{ flex: 1.5 }} icon="search-web" />
       </View>
     </TouchableOpacity>
   );
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     paddingRight: 10,
     marginTop: 20,
-    height: 100,
+    // height: 100,
     width: "100%",
     backgroundColor: "#fbbbbb",
     display: "flex",

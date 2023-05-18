@@ -10,14 +10,12 @@ import {
   updateProfile,
 } from "firebase/auth";
 import {
-  addDoc,
   collection,
   doc,
   getDocs,
   query,
   serverTimestamp,
   setDoc,
-  updateDoc,
   where,
 } from "firebase/firestore";
 import { getUserDocId } from "../../utilities/utils";
@@ -106,13 +104,16 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
           where("id", "==", response.user.uid)
         );
 
-        await setDoc(doc(firestore, "users", response.user.uid), {
-          id: response.user.uid,
-          displayName,
-          username,
-          phoneNumber: response.user.phoneNumber as string,
-          accountCreatedOn: serverTimestamp(),
-        });
+        await setDoc(
+          doc(firestore, "users", response.user.uid),
+          {
+            id: response.user.uid,
+            displayName,
+            username,
+            phoneNumber: response.user.phoneNumber as string,
+          },
+          { merge: true }
+        );
 
         const querySnapshot = await getDocs(searchQuery);
 
