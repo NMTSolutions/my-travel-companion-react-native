@@ -3,17 +3,21 @@ import { Button, Text, TextInput } from "react-native-paper";
 import { StyleSheet, View, ActivityIndicator } from "react-native";
 import UserContext from "../context/UserContext/UserContext";
 import { IError } from "../utilities/types";
-import TravelContext from "../context/TravelContext/TravelContext";
+import TravelContext, {
+  IAccount,
+} from "../context/TravelContext/TravelContext";
 
 interface GetUserInfoScreenProps {
   setError: ({ isError, message }: IError) => void;
   otp: string;
   prevPage: () => void;
+  phone: string;
 }
 
 const GetUserInfoScreen = ({
   setError,
   otp,
+  phone,
   prevPage,
 }: GetUserInfoScreenProps) => {
   const [username, setUsername] = useState("");
@@ -22,6 +26,7 @@ const GetUserInfoScreen = ({
   const [isLoadingUsernameAvailability, setIsLoadingUsernameAvailability] =
     useState(false);
   const [isUsernameAvailable, setIsUsernameAvailable] = useState(true);
+  const [myAccount, setMyAccount] = useState<IAccount | null>(null);
 
   const userContext = useContext(UserContext);
   const travelContext = useContext(TravelContext);
@@ -55,10 +60,18 @@ const GetUserInfoScreen = ({
   };
 
   useEffect(() => {
+    const phoneWithCountryCode = phone.includes("+91") ? phone : `+91${phone}`;
     const timer = setTimeout(async () => {
       setIsLoadingUsernameAvailability(true);
-      const { searchedAccounts } = await travelContext.searchAccounts(username);
-      if (searchedAccounts?.length && searchedAccounts?.length > 0) {
+      const { searchedAccounts } = await travelContext.searchAccounts(
+        username,
+        false
+      );
+      if (
+        searchedAccounts?.length &&
+        searchedAccounts?.length > 0 &&
+        searchedAccounts[0].phoneNumber !== phoneWithCountryCode
+      ) {
         setIsUsernameAvailable(false);
       } else {
         setIsUsernameAvailable(true);
@@ -67,6 +80,27 @@ const GetUserInfoScreen = ({
     }, 500);
     return () => clearTimeout(timer);
   }, [username]);
+
+  const getMyAccount = async () => {
+    setIsLoadingUsernameAvailability(true);
+    const { searchedAccounts } = await travelContext.searchAccounts(
+      phone,
+      false
+    );
+    if (searchedAccounts?.length && searchedAccounts?.length > 0) {
+      setMyAccount(searchedAccounts[0]);
+      setUsername(searchedAccounts[0].username);
+      setDisplayName(searchedAccounts[0].displayName);
+      setIsUsernameAvailable(false);
+    } else {
+      setIsUsernameAvailable(true);
+    }
+    setIsLoadingUsernameAvailability(false);
+  };
+
+  useEffect(() => {
+    getMyAccount();
+  }, []);
 
   return (
     <View style={styles.container}>

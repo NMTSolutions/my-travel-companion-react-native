@@ -50,7 +50,10 @@ export interface ITravelContext {
   companionsRequests: ICompanionRequest[];
   searchedAccounts: IAccount[];
   markLost: (location: ICoordinates) => Promise<ITravelResponse>;
-  searchAccounts: (searchKey: string) => Promise<ITravelResponse>;
+  searchAccounts: (
+    searchKey: string,
+    isSearchingForCR?: boolean
+  ) => Promise<ITravelResponse>;
   sendCompanionRequest: (account: IAccount) => Promise<ITravelResponse>;
   getCompanionRequests: () => Promise<ITravelResponse>;
   acceptCompanionRequest: (
@@ -68,7 +71,8 @@ const initialContext: ITravelContext = {
   companionsRequests: [],
   searchedAccounts: [],
   markLost: async (location: ICoordinates) => ({} as ITravelResponse),
-  searchAccounts: async (searchKey: string) => ({} as ITravelResponse),
+  searchAccounts: async (searchKey: string, isSearchingForCR?: boolean) =>
+    ({} as ITravelResponse),
   sendCompanionRequest: async (account: IAccount) => ({} as ITravelResponse),
   getCompanionRequests: async () => ({} as ITravelResponse),
   acceptCompanionRequest: async (request: ICompanionRequest) =>

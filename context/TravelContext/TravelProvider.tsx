@@ -45,7 +45,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const searchAccounts = async (searchKey: string) => {
+  const searchAccounts = async (searchKey: string, isSearchingForCR = true) => {
     try {
       const user = userContext.user;
 
@@ -68,20 +68,26 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
         return { ...accountData, id: account.id } as IAccount;
       });
 
-      const filteredAccounts = accounts;
+      let searchedAccounts = accounts;
 
-      // .filter(
-      //   (acc) =>
-      //     acc.id !== user?.uid &&
-      //     companionsRequests.findIndex((req) => req.id === acc.id) === -1 &&
-      //     myCompanions.findIndex((companion) => companion.id === acc.id) === -1
-      // );
-
-      setSearchedAccounts(filteredAccounts);
+      if (isSearchingForCR) {
+        const filteredAccounts = accounts.filter(
+          (acc) =>
+            acc.id !== user?.uid &&
+            companionsRequests.findIndex((req) => req.id === acc.id) === -1 &&
+            myCompanions.findIndex((companion) => companion.id === acc.id) ===
+              -1
+        );
+        searchedAccounts = filteredAccounts;
+        setSearchedAccounts(filteredAccounts);
+      } else {
+        searchedAccounts = accounts;
+        setSearchedAccounts(accounts);
+      }
 
       return {
         status: "success",
-        searchedAccounts: filteredAccounts,
+        searchedAccounts,
       } as ITravelResponse;
     } catch (error: any) {
       console.log(error);

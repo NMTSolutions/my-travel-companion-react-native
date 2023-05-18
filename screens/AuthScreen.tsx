@@ -93,6 +93,7 @@ const AuthScreen = ({ navigation }: AuthScreenProps) => {
         return (
           <GetUserInfoScreen
             otp={otp}
+            phone={phone}
             setError={setError}
             prevPage={prevPage}
           />
