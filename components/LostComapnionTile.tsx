@@ -18,12 +18,12 @@ const LostComapnionTile = ({ navigate }: ILostCompanionTileProps) => {
   return (
     <TouchableOpacity onPress={handleTap}>
       <View style={styles.lostCompanionMessage}>
-        <List.Icon icon="account-supervisor" />
-        <View>
+        <List.Icon style={{ flex: 1.5 }} icon="account-supervisor" />
+        <View style={{ flex: 8 }}>
           <Text style={styles.listText}>Shabana Marked herself Lost.</Text>
           <Text style={styles.listSubText}>Find her.</Text>
         </View>
-        <List.Icon icon="search-web" />
+        <List.Icon style={{ flex: 1 }} icon="search-web" />
       </View>
     </TouchableOpacity>
   );
@@ -34,6 +34,8 @@ export default LostComapnionTile;
 const styles = StyleSheet.create({
   lostCompanionMessage: {
     padding: 20,
+    paddingLeft: 10,
+    paddingRight: 10,
     marginTop: 20,
     height: 100,
     width: "100%",
@@ -45,11 +47,11 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   listText: {
-    fontSize: 16,
+    fontSize: 12,
     fontWeight: "500",
   },
   listSubText: {
-    fontSize: 14,
+    fontSize: 10,
     fontWeight: "400",
     color: "grey",
   },

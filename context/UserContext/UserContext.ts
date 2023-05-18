@@ -1,5 +1,6 @@
 import { createContext } from "react";
 import { AuthError, User } from "firebase/auth";
+import { IAccount } from "../TravelContext/TravelContext";
 
 export interface IAuthResponse {
   status: string;
@@ -9,6 +10,7 @@ export interface IAuthResponse {
 
 export interface IUserContext {
   user: User | null;
+  myAccount: IAccount | null;
   isError: boolean;
   errorMessage: string;
   getOtp: (
@@ -26,6 +28,7 @@ export interface IUserContext {
 
 const initialContext: IUserContext = {
   user: null,
+  myAccount: null,
   isError: false,
   errorMessage: "No Error.",
   getOtp: async (phoneNumber, applicationVerifier) => ({} as IAuthResponse),

@@ -83,14 +83,14 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
   const fetchLocation = async () => {
     setIsFetchingLocation(true);
     try {
-      let res = await Location.requestForegroundPermissionsAsync();
+      const res = await Location.requestForegroundPermissionsAsync();
       console.log(res);
       if (res.status !== "granted") {
         setIsLocationAccessDenied(true);
         return;
       }
 
-      let location = await Location.getCurrentPositionAsync({});
+      const location = await Location.getCurrentPositionAsync({});
       const latitude = location.coords.latitude;
       const longitude = location.coords.longitude;
 
@@ -195,7 +195,7 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
                     size={40}
                     iconColor={currentItem.iconColor}
                   />
-                  <Text style={styles.listText}>{currentItem.label}</Text>
+                  <Text style={styles.gridText}>{currentItem.label}</Text>
                 </View>
               );
             }}
@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
   companionsList: {
     padding: 20,
     marginTop: 20,
-    height: 60,
+    height: 80,
     width: "100%",
     backgroundColor: "#fff",
     display: "flex",
@@ -331,8 +331,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     borderRadius: 15,
   },
+  gridText: {
+    fontSize: 11,
+    fontWeight: "500",
+  },
   listText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "500",
   },
   gridTile: {
