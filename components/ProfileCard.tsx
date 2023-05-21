@@ -24,7 +24,7 @@ const ProfileCard = ({ navigate }: { navigate: (route: string) => void }) => {
       <View style={styles.iconSet}>
         <Avatar.Text
           size={50}
-          label="T"
+          label={userContext.myAccount?.displayName?.[0] ?? ""}
           //   source={{
           //     uri: "https://randomuser.me/api/portraits/men/36.jpg",
           //   }}
