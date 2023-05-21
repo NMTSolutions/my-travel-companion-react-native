@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Text } from "react-native-paper";
 import {
   FlatList,
@@ -9,60 +9,36 @@ import {
 } from "react-native";
 import { NavigationProp, ParamListBase } from "@react-navigation/native";
 import BottomNavigation from "../components/BottomNavigation";
-import Tile from "../components/Tile";
+import NotificationTile from "../components/NotificationTile";
+import TravelContext from "../context/TravelContext/TravelContext";
 
 interface INavigationsScreenProps {
   navigation: NavigationProp<ParamListBase>;
 }
 
-const testNotification = [
-  "Tauqeer marked himself as lost!, wanna find him?",
-  "Wafa marked himself as lost!, wanna find him?",
-  "Karim marked himself as lost!, wanna find him?",
-  "Tauqeer marked himself as lost!, wanna find him?",
-  "Wafa marked himself as lost!, wanna find him?",
-  "Karim marked himself as lost!, wanna find him?",
-  "Tauqeer marked himself as lost!, wanna find him?",
-  "Wafa marked himself as lost!, wanna find him?",
-  "Karim marked himself as lost!, wanna find him?",
-  "Tauqeer marked himself as lost!, wanna find him?",
-  "Wafa marked himself as lost!, wanna find him?",
-  "Karim marked himself as lost!, wanna find him?",
-  "Tauqeer marked himself as lost!, wanna find him?",
-  "Wafa marked himself as lost!, wanna find him?",
-  "Karim marked himself as lost!, wanna find him?",
-  "Tauqeer marked himself as lost!, wanna find him?",
-  "Wafa marked himself as lost!, wanna find him?",
-  "Karim marked himself as lost!, wanna find him?",
-  "Tauqeer marked himself as lost!, wanna find him?",
-  "Wafa marked himself as lost!, wanna find him?",
-  "Karim marked himself as lost!, wanna find him?",
-  "Tauqeer marked himself as lost!, wanna find him?",
-  "Wafa marked himself as lost!, wanna find him?",
-  "Karim marked himself as lost!, wanna find him?",
-  "Tauqeer marked himself as lost!, wanna find him?",
-  "Wafa marked himself as lost!, wanna find him?",
-  "Karim marked himself as lost!, wanna find him?",
-  "Tauqeer marked himself as lost!, wanna find him?",
-  "Wafa marked himself as lost!, wanna find him?",
-  "Karim marked himself as lost!, wanna find him?",
-  "Tauqeer marked himself as lost!, wanna find him?",
-  "Wafa marked himself as lost!, wanna find him?",
-  "Karim marked himself as lost!, wanna find him?",
-];
-
 const NotificationsScreen = ({ navigation }: INavigationsScreenProps) => {
+  const travelContext = useContext(TravelContext);
+
+  const notifications = travelContext.myNotifications;
+
+  const unreadNotifications = notifications.filter(
+    (notification) => !notification.isRead
+  );
+
   return (
     <SafeAreaView style={styles.safeContainer}>
       <View style={styles.subContainer}>
-        <Text style={styles.heading}>Notifications</Text>
+        <Text style={styles.heading}>
+          Notifications
+          {unreadNotifications.length > 0 && ` (${unreadNotifications.length})`}
+        </Text>
+        {notifications.length < 1 && <Text>No notifications to show.</Text>}
         <FlatList
-          data={testNotification}
+          data={notifications}
           renderItem={(notification) => (
-            <Tile
-              key={notification.item}
-              iconName="bell-alert-outline"
-              textContent={notification.item}
+            <NotificationTile
+              key={notification.item.id}
+              notification={notification.item}
             />
           )}
         />

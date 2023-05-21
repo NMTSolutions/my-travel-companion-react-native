@@ -59,9 +59,11 @@ export enum NotificationType {
 }
 
 export interface INotification {
+  id?: string;
   type: NotificationType;
   message: string;
   time: FieldValue;
+  isRead: boolean;
 }
 
 export interface ITravelResponse {
@@ -74,12 +76,15 @@ export interface ITravelResponse {
   message?: string;
   lostMsgsSentTo?: ILostMessage[];
   notifId?: string;
+  myNotifications?: INotification[];
 }
 
 export interface ITravelContext {
   myCompanions: ICompanion[];
   companionsRequests: ICompanionRequest[];
   searchedAccounts: IAccount[];
+  myNotifications: INotification[];
+  isLost: boolean;
   markLost: (location: ICoordinates) => Promise<ITravelResponse>;
   searchAccounts: (
     searchKey: string,
@@ -95,12 +100,15 @@ export interface ITravelContext {
   ) => Promise<ITravelResponse>;
   getCompanions: () => Promise<ITravelResponse>;
   removeCompanion: (companion: ICompanion) => Promise<ITravelResponse>;
+  markNotificationAsRead: (notificationId: string) => Promise<ITravelResponse>;
 }
 
 const initialContext: ITravelContext = {
   myCompanions: [],
   companionsRequests: [],
   searchedAccounts: [],
+  myNotifications: [],
+  isLost: false,
   markLost: async (location: ICoordinates) => ({} as ITravelResponse),
   searchAccounts: async (searchKey: string, isSearchingForCR?: boolean) =>
     ({} as ITravelResponse),
@@ -112,6 +120,8 @@ const initialContext: ITravelContext = {
     ({} as ITravelResponse),
   getCompanions: async () => ({} as ITravelResponse),
   removeCompanion: async (companion: ICompanion) => ({} as ITravelResponse),
+  markNotificationAsRead: async (notificationId: string) =>
+    ({} as ITravelResponse),
 };
 
 const TravelContext = createContext(initialContext);

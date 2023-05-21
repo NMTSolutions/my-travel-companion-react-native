@@ -22,6 +22,8 @@ import {
   or,
   query,
   serverTimestamp,
+  setDoc,
+  updateDoc,
   where,
   writeBatch,
 } from "firebase/firestore";
@@ -37,6 +39,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
     ICompanionRequest[]
   >([]);
   const [myCompanions, setMyCompanions] = useState<ICompanion[]>([]);
+  const [myNotifications, setMyNotifications] = useState<INotification[]>([]);
 
   const userContext = useContext(UserContext);
 
@@ -55,6 +58,62 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
       const notifRef = await addDoc(companionNotifCollection, notification);
 
       return { status: "success", notifId: notifRef.id } as ITravelResponse;
+    } catch (error: any) {
+      console.log(error);
+      return { status: "error", error } as ITravelResponse;
+    }
+  };
+
+  const getNotifications = async () => {
+    try {
+      const user = userContext.user;
+
+      const notificationsDocRef = doc(
+        firestore,
+        "myNotifications",
+        user?.uid ?? ""
+      );
+      const notificationsCollectionRef = collection(
+        notificationsDocRef,
+        "notifications"
+      );
+      const dataSnapshot = await getDocs(notificationsCollectionRef);
+
+      const myNotifications = dataSnapshot.docs.map((notification) => {
+        const cmp = notification.data();
+        return { ...cmp, id: notification.id } as INotification;
+      });
+
+      setMyNotifications(myNotifications);
+
+      return {
+        status: "success",
+        myNotifications,
+      } as ITravelResponse;
+    } catch (error: any) {
+      console.log(error);
+      return { status: "error", error } as ITravelResponse;
+    }
+  };
+
+  const markNotificationAsRead = async (notificationId: string) => {
+    try {
+      const user = userContext.user;
+
+      await setDoc(
+        doc(
+          firestore,
+          "myNotifications",
+          user?.uid ?? "",
+          "notifications",
+          notificationId
+        ),
+        {
+          isRead: true,
+        },
+        { merge: true }
+      );
+      return { status: "success" } as ITravelResponse;
     } catch (error: any) {
       console.log(error);
       return { status: "error", error } as ITravelResponse;
@@ -127,6 +186,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
         type: NotificationType.CompanionRequest,
         message: `${myAccount?.displayName} sent a companion request.`,
         time: serverTimestamp(),
+        isRead: false,
       };
 
       await sendNotification(account.id, notification);
@@ -247,6 +307,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
         type: NotificationType.CompanionRequestAccepted,
         message: `${myAccount?.displayName} accepted your companion request.`,
         time: serverTimestamp(),
+        isRead: false,
       };
 
       await sendNotification(request.id, notification);
@@ -279,6 +340,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
         type: NotificationType.CompanionRequestRejected,
         message: `${myAccount?.displayName} rejected your companion request.`,
         time: serverTimestamp(),
+        isRead: false,
       };
 
       await sendNotification(request.id, notification);
@@ -372,6 +434,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
         type: NotificationType.RemovedFromCompanions,
         message: `${myAccount?.displayName} removed you from their companions.`,
         time: serverTimestamp(),
+        isRead: false,
       };
 
       await sendNotification(companion.id, notification);
@@ -417,6 +480,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
           type: NotificationType.LostNotification,
           message: `${lostComapnion?.companion.displayName} marked themself as lost.`,
           time: serverTimestamp(),
+          isRead: false,
         };
 
         const notifRes = await sendNotification(companion.id, notification);
@@ -447,6 +511,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
     if (user) {
       getCompanionRequests();
       getCompanions();
+      getNotifications();
 
       const unsubscribeCompanionRequest = onSnapshot(
         collection(firestore, "companionRequests", user.uid, "requests"),
@@ -473,9 +538,21 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
         }
       );
 
+      const unsubscribeNotifications = onSnapshot(
+        collection(firestore, "myNotifications", user.uid, "notifications"),
+        (myNotificationsSnapshot) => {
+          const myNotifications = myNotificationsSnapshot.docs.map((notif) => {
+            const notification = notif.data();
+            return { ...notification, id: notif.id } as INotification;
+          });
+          setMyNotifications(myNotifications);
+        }
+      );
+
       return () => {
         unsubscribeCompanionRequest();
         unsubscribeMyCompanions();
+        unsubscribeNotifications();
       };
     }
   }, [userContext.user]);
@@ -484,6 +561,8 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
     myCompanions,
     companionsRequests,
     searchedAccounts,
+    myNotifications,
+    isLost,
     markLost,
     searchAccounts,
     sendCompanionRequest,
@@ -492,6 +571,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
     rejectCompanionRequest,
     getCompanions,
     removeCompanion,
+    markNotificationAsRead,
   };
   return (
     <TravelContext.Provider value={context}>{children}</TravelContext.Provider>

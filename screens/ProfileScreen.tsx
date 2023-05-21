@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useContext } from "react";
 import { View, SafeAreaView, StyleSheet, Image, StatusBar } from "react-native";
 import Text from "../components/Text";
-import { IconButton } from "react-native-paper";
+import { Avatar, IconButton } from "react-native-paper";
+import UserContext from "../context/UserContext/UserContext";
 
 const ProfileScreen = () => {
+  const userContext = useContext(UserContext);
+
   return (
     <SafeAreaView
       style={[
@@ -14,9 +17,12 @@ const ProfileScreen = () => {
       ]}
     >
       <View style={styles.profileImageContainer}>
-        <Image
-          source={{ uri: "https://randomuser.me/api/portraits/men/36.jpg" }}
+        <Avatar.Text
           style={styles.profileImage}
+          label={userContext.myAccount?.displayName?.[0] ?? "A"}
+          //   source={{
+          //     uri: "https://randomuser.me/api/portraits/men/36.jpg",
+          //   }}
         />
       </View>
       <View style={styles.infoContainer}>
@@ -28,7 +34,9 @@ const ProfileScreen = () => {
             <View style={styles.nameLabelCombo}>
               <View>
                 <Text style={styles.tileLabel}>Username</Text>
-                <Text style={styles.tileContent}>Tauqeer14118</Text>
+                <Text style={styles.tileContent}>
+                  {userContext.myAccount?.username}
+                </Text>
               </View>
               <View></View>
             </View>
@@ -46,7 +54,9 @@ const ProfileScreen = () => {
             <View style={styles.nameLabelCombo}>
               <View>
                 <Text style={styles.tileLabel}>Name</Text>
-                <Text style={styles.tileContent}>Tauqeer Khan</Text>
+                <Text style={styles.tileContent}>
+                  {userContext.myAccount?.displayName}
+                </Text>
               </View>
               <View></View>
             </View>
@@ -65,7 +75,9 @@ const ProfileScreen = () => {
             <View style={styles.phoneLabelCombo}>
               <View>
                 <Text style={styles.tileLabel}>Phone</Text>
-                <Text style={styles.tileContent}>+91 8879998633 </Text>
+                <Text style={styles.tileContent}>
+                  {userContext.myAccount?.phoneNumber}
+                </Text>
               </View>
             </View>
             <View>
