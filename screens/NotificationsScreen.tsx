@@ -16,42 +16,6 @@ interface INavigationsScreenProps {
   navigation: NavigationProp<ParamListBase>;
 }
 
-// const testNotification = [
-//   "Tauqeer marked himself as lost!, wanna find him?",
-//   "Wafa marked himself as lost!, wanna find him?",
-//   "Karim marked himself as lost!, wanna find him?",
-//   "Tauqeer marked himself as lost!, wanna find him?",
-//   "Wafa marked himself as lost!, wanna find him?",
-//   "Karim marked himself as lost!, wanna find him?",
-//   "Tauqeer marked himself as lost!, wanna find him?",
-//   "Wafa marked himself as lost!, wanna find him?",
-//   "Karim marked himself as lost!, wanna find him?",
-//   "Tauqeer marked himself as lost!, wanna find him?",
-//   "Wafa marked himself as lost!, wanna find him?",
-//   "Karim marked himself as lost!, wanna find him?",
-//   "Tauqeer marked himself as lost!, wanna find him?",
-//   "Wafa marked himself as lost!, wanna find him?",
-//   "Karim marked himself as lost!, wanna find him?",
-//   "Tauqeer marked himself as lost!, wanna find him?",
-//   "Wafa marked himself as lost!, wanna find him?",
-//   "Karim marked himself as lost!, wanna find him?",
-//   "Tauqeer marked himself as lost!, wanna find him?",
-//   "Wafa marked himself as lost!, wanna find him?",
-//   "Karim marked himself as lost!, wanna find him?",
-//   "Tauqeer marked himself as lost!, wanna find him?",
-//   "Wafa marked himself as lost!, wanna find him?",
-//   "Karim marked himself as lost!, wanna find him?",
-//   "Tauqeer marked himself as lost!, wanna find him?",
-//   "Wafa marked himself as lost!, wanna find him?",
-//   "Karim marked himself as lost!, wanna find him?",
-//   "Tauqeer marked himself as lost!, wanna find him?",
-//   "Wafa marked himself as lost!, wanna find him?",
-//   "Karim marked himself as lost!, wanna find him?",
-//   "Tauqeer marked himself as lost!, wanna find him?",
-//   "Wafa marked himself as lost!, wanna find him?",
-//   "Karim marked himself as lost!, wanna find him?",
-// ];
-
 const NotificationsScreen = ({ navigation }: INavigationsScreenProps) => {
   const travelContext = useContext(TravelContext);
 
