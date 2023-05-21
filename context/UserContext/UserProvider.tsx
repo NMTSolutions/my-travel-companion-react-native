@@ -18,7 +18,6 @@ import {
   setDoc,
   where,
 } from "firebase/firestore";
-import { getUserDocId } from "../../utilities/utils";
 import { IAccount } from "../TravelContext/TravelContext";
 
 const UserProvider = ({ children }: { children: React.ReactNode }) => {

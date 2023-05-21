@@ -14,7 +14,6 @@ import {
   Dialog,
   Portal,
   Provider,
-  Avatar,
 } from "react-native-paper";
 import * as Location from "expo-location";
 import Grid from "../components/Grid";
@@ -26,6 +25,7 @@ import LostComapnionTile from "../components/LostComapnionTile";
 import TravelContext, {
   ICoordinates,
 } from "../context/TravelContext/TravelContext";
+import ProfileCard from "../components/ProfileCard";
 
 interface IDashboardProps {
   navigation: NavigationProp<ParamListBase>;
@@ -147,28 +147,7 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
     <SafeAreaView style={styles.safeContainer}>
       <Provider>
         <View style={styles.subContainer}>
-          <TouchableOpacity
-            style={styles.profileCard}
-            onPress={() => {
-              navigate(Routes.Profile);
-            }}
-          >
-            <View style={styles.iconSet}>
-              <Avatar.Image
-                size={50}
-                source={{
-                  uri: "https://randomuser.me/api/portraits/men/36.jpg",
-                }}
-              />
-              <View style={styles.profileInfo}>
-                <Text style={styles.greet}>Welcome Back</Text>
-                <Text style={styles.name}>Tauqeer Khan</Text>
-              </View>
-            </View>
-            <View>
-              <IconButton size={25} icon="bell" onPress={() => {}} />
-            </View>
-          </TouchableOpacity>
+          <ProfileCard navigate={navigate} />
           <TouchableOpacity onPress={() => navigate(Routes.MyCompanions)}>
             <View style={styles.companionsList}>
               <List.Icon icon="account-supervisor" />
