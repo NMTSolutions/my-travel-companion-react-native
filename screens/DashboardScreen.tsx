@@ -4,6 +4,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
+  FlatList,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -26,6 +27,7 @@ import TravelContext, {
   ICoordinates,
 } from "../context/TravelContext/TravelContext";
 import ProfileCard from "../components/ProfileCard";
+import LostCompanionsList from "../components/LostCompanionsList";
 
 interface IDashboardProps {
   navigation: NavigationProp<ParamListBase>;
@@ -43,6 +45,9 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
   const [activeDialog, setActiveDialog] = useState("");
   const [isFetchingLocation, setIsFetchingLocation] = useState(false);
   const [isFetchingLocationSuccessful, setIsFetchingLocationSuccessful] =
+    useState(false);
+  const [isMarkingFound, setIsMarkingFound] = useState(false);
+  const [isMarkingFoundSuccessful, setIsMarkingFoundSuccessful] =
     useState(false);
   const [isLocationAccessDenied, setIsLocationAccessDenied] = useState(false);
   const [coordinates, setCoordinates] = useState<ICoordinates | null>(null);
@@ -64,6 +69,15 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
       },
     },
     {
+      name: "mark-found",
+      label: "Mark Yourself Found",
+      iconName: "check-bold",
+      iconColor: "green",
+      onPress: () => {
+        showDialog();
+      },
+    },
+    {
       name: "search-lost-companions",
       label: "Search Companion",
       iconName: "search-web",
@@ -72,7 +86,9 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
         // showDialog();
       },
     },
-  ];
+  ].filter((action) =>
+    travelContext.isLost ? action.name : action.name !== "mark-found"
+  );
 
   const navigate = (route: string, params?: object) => {
     navigation.navigate(route, params);
@@ -88,7 +104,6 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
     setIsFetchingLocation(true);
     try {
       const res = await Location.requestForegroundPermissionsAsync();
-      console.log(res);
       if (res.status !== "granted") {
         setIsLocationAccessDenied(true);
         return;
@@ -99,7 +114,6 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
       });
       const latitude = location.coords.latitude;
       const longitude = location.coords.longitude;
-      console.log(latitude, longitude);
 
       if (
         (latitude !== undefined || latitude !== null) &&
@@ -112,27 +126,46 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
 
         const response = await travelContext.markLost({ latitude, longitude });
 
-        console.log(response);
-
-        setIsFetchingLocationSuccessful(true);
+        setIsFetchingLocationSuccessful(response.status === "success");
+        setIsFetchingLocation(false);
       }
     } catch (error: any) {
-      console.log(error.message);
       switch (error.message) {
         case "Location request failed due to unsatisfied device settings.":
           setIsLocationAccessDenied(true);
           break;
       }
+      setIsFetchingLocationSuccessful(false);
+      setIsFetchingLocation(false);
     }
-
-    setIsFetchingLocation(false);
-    // You can now use the latitude and longitude values to fetch location data from an API
   };
 
-  const handleDialogAction = (activeDialog: string) => {
+  const markFound = async () => {
+    setIsMarkingFound(true);
+    const res = await travelContext.markFound();
+    setIsMarkingFound(false);
+    if (
+      res.foundMsgsSentTo &&
+      res.foundMsgsSentTo > 0 &&
+      travelContext.myCompanions.length > 0
+    ) {
+      setIsMarkingFoundSuccessful(true);
+    } else if (
+      res.foundMsgsSentTo &&
+      res.foundMsgsSentTo === 0 &&
+      travelContext.myCompanions.length > 0
+    ) {
+      setIsMarkingFoundSuccessful(false);
+    }
+  };
+
+  const handleDialogAction = async (activeDialog: string) => {
     switch (activeDialog) {
       case "mark-lost":
         fetchLocation();
+        break;
+      case "mark-found":
+        markFound();
         break;
     }
     hideDialog();
@@ -155,7 +188,9 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
               <List.Icon icon="menu-right" />
             </View>
           </TouchableOpacity>
-          <LostComapnionTile navigate={navigate} />
+          <View>
+            <LostCompanionsList navigate={navigate} />
+          </View>
           <Grid
             columns={2}
             items={dashboardActions}
@@ -164,6 +199,7 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
               setActiveDialog(currentItem.name);
               switch (currentItem.name) {
                 case "mark-lost":
+                case "mark-found":
                   showDialog();
                   break;
                 default:
@@ -259,6 +295,20 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
                 Close
               </Button>
             </Dialog.Actions>
+          </Dialog>
+          <Dialog visible={isMarkingFound}>
+            <Dialog.Title>Marking Found</Dialog.Title>
+            <Dialog.Content style={styles.fetchingLocationContent}>
+              <ActivityIndicator size={50} color={"#6750a4"} />
+              <View>
+                <Text
+                  variant="bodyMedium"
+                  style={{ padding: 10, marginLeft: 20 }}
+                >
+                  Sending notifications to your comapnions.
+                </Text>
+              </View>
+            </Dialog.Content>
           </Dialog>
         </Portal>
         <BottomNavigation navigation={navigation} />

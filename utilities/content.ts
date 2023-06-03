@@ -10,6 +10,12 @@ export const getDialogContent = (activeDialog: string) => {
       content.content = "Mark yourself lost. Your Companions will find you.";
       content.action = "Confirm";
       break;
+    case "mark-found":
+      content.heading = "Mark found";
+      content.content =
+        "Mark yourself found. Your Companions will be notified.";
+      content.action = "Confirm";
+      break;
     default:
       content.heading = "Confirmation";
       content.content = "Are you sure?";

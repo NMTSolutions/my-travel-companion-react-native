@@ -122,7 +122,7 @@ const AuthScreen = ({ navigation }: AuthScreenProps) => {
         <FirebaseRecaptchaVerifierModal
           ref={recaptchaVerifier}
           firebaseConfig={firebaseConfig}
-          // attemptInvisibleVerification
+          attemptInvisibleVerification
         />
         <Image style={styles.image} source={require("../assets/travel.png")} />
         <Modal
@@ -131,19 +131,10 @@ const AuthScreen = ({ navigation }: AuthScreenProps) => {
           transparent
         >
           <View style={modalStyles.modalContainer}>
-            {(page !== 0 || environment === "development") && (
+            {page !== 0 && (
               <View style={styles.head}>
                 {page !== 0 && (
                   <IconButton icon={"arrow-left"} onPress={prevPage} />
-                )}
-                {environment === "development" && (
-                  <IconButton
-                    icon={"close"}
-                    onPress={() => {
-                      setIsModalVisible(false);
-                      setTimeout(() => setIsModalVisible(true), 2000);
-                    }}
-                  />
                 )}
               </View>
             )}

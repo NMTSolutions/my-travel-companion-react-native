@@ -1,3 +1,5 @@
+import { ILostCompanion } from "../context/TravelContext/TravelContext";
+
 export enum Routes {
   Auth = "/auth",
   Dashboard = "/dashboard",
@@ -14,5 +16,5 @@ export type RootStackParamList = {
   [Routes.Profile]: undefined;
   [Routes.SearchCompanions]: undefined;
   [Routes.MyCompanions]: undefined;
-  [Routes.FindCompanion]: { name: string; lat: string; long: string };
+  [Routes.FindCompanion]: ILostCompanion;
 };
