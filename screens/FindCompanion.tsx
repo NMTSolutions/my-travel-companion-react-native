@@ -1,11 +1,19 @@
 import React from "react";
-import { SafeAreaView, StatusBar, StyleSheet, Text, View } from "react-native";
+import {
+  Platform,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import {
   NavigationProp,
   ParamListBase,
   RouteProp,
 } from "@react-navigation/native";
 import { RootStackParamList, Routes } from "../routes/availableRoutes";
+import MapView, { Marker } from "react-native-maps";
 
 interface IFindCompanionScreenProps {
   navigation: NavigationProp<ParamListBase>;
@@ -13,11 +21,36 @@ interface IFindCompanionScreenProps {
 }
 
 const FindCompanion = ({ navigation, route }: IFindCompanionScreenProps) => {
-  route.params.name;
+  const lostCompanion = route.params;
+
   return (
     <SafeAreaView style={styles.safeContainer}>
       <View style={styles.subContainer}>
-        <Text style={styles.heading}>Find Companion : {route.params.name}</Text>
+        <View>
+          <Text style={styles.heading}>
+            {lostCompanion.companion.displayName}
+          </Text>
+        </View>
+        <View style={{ flex: 1 }}>
+          <MapView
+            style={styles.map}
+            initialRegion={{
+              latitude: lostCompanion.coordinates.latitude,
+              longitude: lostCompanion.coordinates.longitude,
+              latitudeDelta: 0.005,
+              longitudeDelta: 0.005,
+            }}
+          >
+            <Marker
+              coordinate={{
+                latitude: lostCompanion.coordinates.latitude,
+                longitude: lostCompanion.coordinates.longitude,
+              }}
+              title={lostCompanion.companion.displayName}
+              description="I am lost!"
+            />
+          </MapView>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -26,18 +59,25 @@ const FindCompanion = ({ navigation, route }: IFindCompanionScreenProps) => {
 export default FindCompanion;
 
 const styles = StyleSheet.create({
-  heading: { fontSize: 20, fontWeight: "600", marginBottom: 20 },
+  heading: {
+    fontSize: 16,
+    fontWeight: "600",
+    padding: 10,
+  },
   safeContainer: {
     backgroundColor: "#ece7e5",
     height: "100%",
     position: "relative",
     paddingTop: StatusBar.currentHeight,
+    flex: 1,
   },
   subContainer: {
     height: "100%",
     width: "100%",
-    paddingTop: 20,
-    paddingLeft: 20,
-    paddingRight: 20,
+    padding: 0,
+    flex: 1,
+  },
+  map: {
+    flex: 1,
   },
 });

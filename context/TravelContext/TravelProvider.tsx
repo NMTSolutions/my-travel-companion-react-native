@@ -40,6 +40,9 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
   >([]);
   const [myCompanions, setMyCompanions] = useState<ICompanion[]>([]);
   const [myNotifications, setMyNotifications] = useState<INotification[]>([]);
+  const [myLostCompanions, setMyLostCompanions] = useState<ILostCompanion[]>(
+    []
+  );
 
   const userContext = useContext(UserContext);
 
@@ -454,6 +457,8 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
 
   const markLost = async (location: ICoordinates) => {
     try {
+      const myAccount = userContext.myAccount;
+
       const lostCompanion: ILostCompanion = {
         companion: userContext.myAccount as IAccount,
         coordinates: location,
@@ -463,6 +468,37 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
       const lostMsgsSentTo: ILostMessage[] = [];
 
       for (const companion of myCompanions) {
+        //deleting existing lost request if any
+        const oppCompanionLostCompanionsDocRef = doc(
+          firestore,
+          "myLostCompanions",
+          companion.id
+        );
+        const oppCompanionLostCompanionsCollectionRef = collection(
+          oppCompanionLostCompanionsDocRef,
+          "lostCompanions"
+        );
+
+        const deleteQuery = query(
+          oppCompanionLostCompanionsCollectionRef,
+          where("companion.id", "==", myAccount?.id)
+        );
+
+        const querySnapshot = await getDocs(deleteQuery);
+
+        for (const docSnap of querySnapshot.docs) {
+          const docRef = doc(
+            firestore,
+            "myLostCompanions",
+            companion.id,
+            "lostCompanions",
+            docSnap.id
+          );
+
+          await deleteDoc(docRef);
+        }
+
+        //adding new lost request after deleting existing if any
         const lostCompanionsDocRef = doc(
           firestore,
           "myLostCompanions",
@@ -506,12 +542,109 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const markFound = async () => {
+    try {
+      const myAccount = userContext.myAccount;
+
+      let foundMsgsSentTo = 0;
+
+      for (const companion of myCompanions) {
+        const oppCompanionLostCompanionsDocRef = doc(
+          firestore,
+          "myLostCompanions",
+          companion.id
+        );
+        const oppCompanionLostCompanionsCollectionRef = collection(
+          oppCompanionLostCompanionsDocRef,
+          "lostCompanions"
+        );
+
+        const deleteQuery = query(
+          oppCompanionLostCompanionsCollectionRef,
+          where("companion.id", "==", myAccount?.id)
+        );
+
+        const querySnapshot = await getDocs(deleteQuery);
+
+        for (const docSnap of querySnapshot.docs) {
+          const docRef = doc(
+            firestore,
+            "myLostCompanions",
+            companion.id,
+            "lostCompanions",
+            docSnap.id
+          );
+
+          await deleteDoc(docRef);
+        }
+
+        const notification: INotification = {
+          type: NotificationType.FoundNotification,
+          message: `${lostComapnion?.companion.displayName} marked themself as found.`,
+          time: serverTimestamp(),
+          isRead: false,
+        };
+
+        const notifRes = await sendNotification(companion.id, notification);
+        if (notifRes.status === "success") {
+          foundMsgsSentTo++;
+        }
+      }
+
+      setIsLost(false);
+
+      return {
+        status: "success",
+        foundMsgsSentTo,
+      } as ITravelResponse;
+    } catch (error: any) {
+      console.log(error);
+      return { status: "error", error } as ITravelResponse;
+    }
+  };
+
+  const getLostCompanions = async () => {
+    try {
+      const user = userContext.user;
+
+      const lostCompanionsDocRef = doc(
+        firestore,
+        "myLostCompanions",
+        user?.uid ?? ""
+      );
+      const lostCompanionsCollectionRef = collection(
+        lostCompanionsDocRef,
+        "lostCompanions"
+      );
+      const dataSnapshot = await getDocs(lostCompanionsCollectionRef);
+
+      const myLostCompanions = dataSnapshot.docs.map((lostCompanion) => {
+        const lostCmp = lostCompanion.data();
+        return {
+          ...lostCmp,
+          lostCompanionId: lostCompanion.id,
+        } as ILostCompanion;
+      });
+
+      setMyLostCompanions(myLostCompanions);
+
+      return {
+        status: "success",
+        myCompanions,
+      } as ITravelResponse;
+    } catch (error: any) {
+      console.log(error);
+      return { status: "error", error } as ITravelResponse;
+    }
+  };
+
   useEffect(() => {
     const user = userContext.user;
     if (user) {
       getCompanionRequests();
       getCompanions();
       getNotifications();
+      getLostCompanions();
 
       const unsubscribeCompanionRequest = onSnapshot(
         collection(firestore, "companionRequests", user.uid, "requests"),
@@ -549,10 +682,27 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
         }
       );
 
+      const unsubscribeMyLostCompanions = onSnapshot(
+        collection(firestore, "myLostCompanions", user.uid, "lostCompanions"),
+        (myLostCompanionsSnapshot) => {
+          const myLostCompanions = myLostCompanionsSnapshot.docs.map(
+            (lostCompanions) => {
+              const lostCmp = lostCompanions.data();
+              return {
+                ...lostCmp,
+                lostCompanionId: lostCompanions.id,
+              } as ILostCompanion;
+            }
+          );
+          setMyLostCompanions(myLostCompanions);
+        }
+      );
+
       return () => {
         unsubscribeCompanionRequest();
         unsubscribeMyCompanions();
         unsubscribeNotifications();
+        unsubscribeMyLostCompanions();
       };
     }
   }, [userContext.user]);
@@ -562,8 +712,10 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
     companionsRequests,
     searchedAccounts,
     myNotifications,
+    myLostCompanions,
     isLost,
     markLost,
+    markFound,
     searchAccounts,
     sendCompanionRequest,
     getCompanionRequests,

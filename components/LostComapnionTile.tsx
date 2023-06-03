@@ -2,17 +2,19 @@ import React from "react";
 import { List } from "react-native-paper";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Routes } from "../routes/availableRoutes";
+import { ILostCompanion } from "../context/TravelContext/TravelContext";
 
 interface ILostCompanionTileProps {
+  lostCompanion: ILostCompanion;
   navigate: (route: string, params?: object) => void;
 }
 
-const LostComapnionTile = ({ navigate }: ILostCompanionTileProps) => {
+const LostComapnionTile = ({
+  lostCompanion,
+  navigate,
+}: ILostCompanionTileProps) => {
   const handleTap = () => {
-    navigate(Routes.FindCompanion, {
-      name: "Shabana",
-      location: { lat: "ghr", long: "ghr" },
-    });
+    navigate(Routes.FindCompanion, lostCompanion);
   };
 
   return (
@@ -20,8 +22,10 @@ const LostComapnionTile = ({ navigate }: ILostCompanionTileProps) => {
       <View style={styles.lostCompanionMessage}>
         <List.Icon style={{ flex: 1.5 }} icon="account-supervisor" />
         <View style={{ flex: 8 }}>
-          <Text style={styles.listText}>Shabana Marked herself Lost.</Text>
-          <Text style={styles.listSubText}>Find her.</Text>
+          <Text style={styles.listText}>
+            {lostCompanion.companion.displayName} marked themself Lost.
+          </Text>
+          <Text style={styles.listSubText}>Find them.</Text>
         </View>
         <List.Icon style={{ flex: 1.5 }} icon="search-web" />
       </View>

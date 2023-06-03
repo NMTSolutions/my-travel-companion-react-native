@@ -7,6 +7,7 @@ export interface ICoordinates {
 }
 
 export interface ILostCompanion {
+  lostCompanionId?: string;
   companion: IAccount;
   coordinates: ICoordinates;
   lostOn: FieldValue;
@@ -77,6 +78,7 @@ export interface ITravelResponse {
   lostMsgsSentTo?: ILostMessage[];
   notifId?: string;
   myNotifications?: INotification[];
+  foundMsgsSentTo?: number;
 }
 
 export interface ITravelContext {
@@ -84,8 +86,10 @@ export interface ITravelContext {
   companionsRequests: ICompanionRequest[];
   searchedAccounts: IAccount[];
   myNotifications: INotification[];
+  myLostCompanions: ILostCompanion[];
   isLost: boolean;
   markLost: (location: ICoordinates) => Promise<ITravelResponse>;
+  markFound: () => Promise<ITravelResponse>;
   searchAccounts: (
     searchKey: string,
     isSearchingForCR?: boolean
@@ -108,8 +112,10 @@ const initialContext: ITravelContext = {
   companionsRequests: [],
   searchedAccounts: [],
   myNotifications: [],
+  myLostCompanions: [],
   isLost: false,
   markLost: async (location: ICoordinates) => ({} as ITravelResponse),
+  markFound: async () => ({} as ITravelResponse),
   searchAccounts: async (searchKey: string, isSearchingForCR?: boolean) =>
     ({} as ITravelResponse),
   sendCompanionRequest: async (account: IAccount) => ({} as ITravelResponse),
