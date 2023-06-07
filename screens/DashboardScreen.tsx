@@ -50,6 +50,8 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
   const [isMarkingFoundSuccessful, setIsMarkingFoundSuccessful] =
     useState(false);
   const [isLocationAccessDenied, setIsLocationAccessDenied] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [error, setError] = useState("None");
   const [coordinates, setCoordinates] = useState<ICoordinates | null>(null);
 
   const travelContext = useContext(TravelContext);
@@ -133,13 +135,16 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
       } else {
         setIsFetchingLocationSuccessful(false);
         setIsFetchingLocation(false);
-        setIsLocationAccessDenied(true);
+        throw new Error("Coordinates not found. Null or undefined.");
       }
     } catch (error: any) {
       switch (error.message) {
         case "Location request failed due to unsatisfied device settings.":
           setIsLocationAccessDenied(true);
           break;
+        default:
+          setError(error.message);
+          setIsError(true);
       }
       setIsFetchingLocationSuccessful(false);
       setIsFetchingLocation(false);
@@ -179,6 +184,7 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
 
   const handleTryAgain = () => {
     setIsLocationAccessDenied(false);
+    setIsError(false);
     fetchLocation();
   };
 
@@ -251,7 +257,10 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
               </Button>
             </Dialog.Actions>
           </Dialog>
-          <Dialog visible={isLocationAccessDenied} onDismiss={hideDialog}>
+          <Dialog
+            visible={isLocationAccessDenied}
+            onDismiss={() => setIsLocationAccessDenied(false)}
+          >
             <Dialog.Title>Location Access Denied</Dialog.Title>
             <Dialog.Content>
               <Text variant="bodyMedium">
@@ -259,7 +268,38 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
               </Text>
             </Dialog.Content>
             <Dialog.Actions>
-              <Button onPress={hideDialog}>Cancel</Button>
+              <Button onPress={() => setIsLocationAccessDenied(false)}>
+                Cancel
+              </Button>
+              <Button
+                mode="contained"
+                style={{ width: 100 }}
+                onPress={() => handleTryAgain()}
+              >
+                Try Again
+              </Button>
+            </Dialog.Actions>
+          </Dialog>
+          <Dialog
+            visible={isError}
+            onDismiss={() => {
+              setIsError(false);
+              setError("None");
+            }}
+          >
+            <Dialog.Title>Error</Dialog.Title>
+            <Dialog.Content>
+              <Text variant="bodyMedium">{error} Please try again.</Text>
+            </Dialog.Content>
+            <Dialog.Actions>
+              <Button
+                onPress={() => {
+                  setIsError(false);
+                  setError("None");
+                }}
+              >
+                Cancel
+              </Button>
               <Button
                 mode="contained"
                 style={{ width: 100 }}
