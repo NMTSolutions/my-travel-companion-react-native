@@ -10,17 +10,18 @@ export interface IAuthResponse {
 
 export interface IUserContext {
   user: User | null;
+  isAccountLoading: boolean;
   myAccount: IAccount | null;
   isError: boolean;
   errorMessage: string;
   getOtp: (
     phoneNumber: string,
-    applicationVerifier: any
+    applicationVerifier: any,
   ) => Promise<IAuthResponse>;
   registerUser: (
     otp: string,
     username: string,
-    displayName: string
+    displayName: string,
   ) => Promise<IAuthResponse>;
   signout: () => void;
   resetError: () => void;
@@ -28,6 +29,7 @@ export interface IUserContext {
 
 const initialContext: IUserContext = {
   user: null,
+  isAccountLoading: false,
   myAccount: null,
   isError: false,
   errorMessage: "No Error.",

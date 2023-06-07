@@ -4,7 +4,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
-  FlatList,
+  StatusBar,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -87,7 +87,7 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
       },
     },
   ].filter((action) =>
-    travelContext.isLost ? action.name : action.name !== "mark-found"
+    travelContext.isLost ? action.name : action.name !== "mark-found",
   );
 
   const navigate = (route: string, params?: object) => {

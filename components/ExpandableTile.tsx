@@ -52,11 +52,12 @@ const ExpandableTile = ({
     <>
       <TouchableOpacity style={styles.profileCard} onPress={handlePress}>
         <View style={styles.iconSet}>
-          <Avatar.Image
+          <Avatar.Text
             size={50}
-            source={{
-              uri: "https://randomuser.me/api/portraits/men/36.jpg",
-            }}
+            label={companion.displayName[0]}
+            // source={{
+            //   uri: "https://randomuser.me/api/portraits/men/36.jpg",
+            // }}
           />
           <View style={styles.profileInfo}>
             <Text style={styles.greet}>{companion.username}</Text>
