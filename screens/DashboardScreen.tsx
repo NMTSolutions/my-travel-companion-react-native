@@ -116,8 +116,10 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
       const longitude = location.coords.longitude;
 
       if (
-        (latitude !== undefined || latitude !== null) &&
-        (longitude !== undefined || longitude !== null)
+        latitude !== undefined &&
+        latitude !== null &&
+        longitude !== undefined &&
+        longitude !== null
       ) {
         setCoordinates({
           latitude,
@@ -128,6 +130,10 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
 
         setIsFetchingLocationSuccessful(response.status === "success");
         setIsFetchingLocation(false);
+      } else {
+        setIsFetchingLocationSuccessful(false);
+        setIsFetchingLocation(false);
+        setIsLocationAccessDenied(true);
       }
     } catch (error: any) {
       switch (error.message) {
