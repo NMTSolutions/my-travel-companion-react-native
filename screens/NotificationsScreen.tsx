@@ -22,7 +22,7 @@ const NotificationsScreen = ({ navigation }: INavigationsScreenProps) => {
   const notifications = travelContext.myNotifications;
 
   const unreadNotifications = notifications.filter(
-    (notification) => !notification.isRead
+    (notification) => !notification.isRead,
   );
 
   return (
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ece7e5",
     height: "100%",
     position: "relative",
-    paddingTop: StatusBar.currentHeight,
+    // paddingTop: StatusBar.currentHeight,
   },
   subContainer: {
     height: "100%",

@@ -1,6 +1,5 @@
 import React, { useContext } from "react";
-import { View, SafeAreaView, StyleSheet, Image, StatusBar } from "react-native";
-import Text from "../components/Text";
+import { Text, View, SafeAreaView, StyleSheet, Image, StatusBar } from "react-native";
 import { Avatar, IconButton } from "react-native-paper";
 import UserContext from "../context/UserContext/UserContext";
 

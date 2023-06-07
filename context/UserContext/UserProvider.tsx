@@ -20,20 +20,45 @@ import {
 } from "firebase/firestore";
 import { IAccount } from "../TravelContext/TravelContext";
 
-const UserProvider = ({ children }: { children: React.ReactNode }) => {
+const UserProvider = ({
+  children,
+  setIsAuthenticated,
+}: {
+  setIsAuthenticated: (isAuthenticated: boolean) => void;
+  children: React.ReactNode;
+}) => {
+  const [isAccountLoading, setIsAccountLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [myAccount, setMyAccount] = useState<IAccount | null>(null);
   const [verficationId, setVerificationId] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("No Error.");
 
+  const searchUser = async (uid: string) => {
+    const userRef = collection(firestore, "users");
+
+    const searchQuery = query(userRef, where("id", "==", uid));
+
+    const querySnapshot = await getDocs(searchQuery);
+
+    const myAcc = querySnapshot.docs.map((acc) => {
+      return acc.data() as IAccount;
+    });
+
+    return myAcc[0];
+  };
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUser(user);
+        const myAcc = await searchUser(user.uid);
+        setIsAuthenticated(true);
+        setMyAccount(myAcc);
       } else {
         setUser(null);
       }
+      setIsAccountLoading(false);
     });
 
     return unsubscribe;
@@ -44,7 +69,7 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
       const phoneProvider = new PhoneAuthProvider(auth);
       const verficationId = await phoneProvider.verifyPhoneNumber(
         phoneNumber,
-        applicationVerifier
+        applicationVerifier,
       );
       setVerificationId(verficationId);
       return { status: "success" } as IAuthResponse;
@@ -59,12 +84,12 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const registerUser = async (
     otp: string,
     username: string,
-    displayName: string
+    displayName: string,
   ) => {
     try {
       const credential = PhoneAuthProvider.credential(
         verficationId as string,
-        otp
+        otp,
       );
       const response = await signInWithCredential(auth, credential);
 
@@ -81,7 +106,7 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
             displayName,
             phoneNumber: response.user.phoneNumber,
             accountCreatedOn: serverTimestamp(),
-          }
+          },
         );
 
         await updateProfile(response.user, {
@@ -96,13 +121,6 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
           accountCreatedOn: serverTimestamp(),
         });
       } else {
-        const userRef = collection(firestore, "users");
-
-        const searchQuery = query(
-          userRef,
-          where("id", "==", response.user.uid)
-        );
-
         await setDoc(
           doc(firestore, "users", response.user.uid),
           {
@@ -111,20 +129,16 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
             username,
             phoneNumber: response.user.phoneNumber as string,
           },
-          { merge: true }
+          { merge: true },
         );
 
-        const querySnapshot = await getDocs(searchQuery);
-
-        const myAcc = querySnapshot.docs.map((acc) => {
-          return acc.data() as IAccount;
-        });
+        const myAcc = await searchUser(response.user.uid);
 
         await updateProfile(response.user, {
           displayName: username,
         });
 
-        setMyAccount(myAcc[0]);
+        setMyAccount(myAcc);
       }
 
       setUser(response.user);
@@ -156,6 +170,7 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   const context: IUserContext = {
     user,
+    isAccountLoading,
     myAccount,
     isError,
     errorMessage,

@@ -1,8 +1,15 @@
 import React, { useRef, useState, useContext } from "react";
-import { SafeAreaView, View, StyleSheet, Image, Modal } from "react-native";
+import {
+  Text,
+  SafeAreaView,
+  View,
+  StyleSheet,
+  Image,
+  Modal,
+  ActivityIndicator,
+} from "react-native";
 import LoginScreen from "./LoginScreen";
 import OTPScreen from "./OTPScreen";
-import Text from "../components/Text";
 import { Button, Dialog, IconButton } from "react-native-paper";
 import {
   NavigationProp,
@@ -15,7 +22,7 @@ import { firebaseConfig } from "../firebase";
 import UserContext from "../context/UserContext/UserContext";
 import { IError } from "../utilities/types";
 import GetUserInfoScreen from "./GetUserInfoScreen";
-import { environment } from "../env";
+import { ENV, environment } from "../env";
 
 interface AuthScreenProps {
   navigation: NavigationProp<ParamListBase>;
@@ -57,7 +64,7 @@ const AuthScreen = ({ navigation }: AuthScreenProps) => {
     const phoneNumberWithCountryCode = "+" + countryCode.trim() + phone.trim();
     const response = await userContext.getOtp(
       phoneNumberWithCountryCode,
-      recaptchaVerifier.current
+      recaptchaVerifier.current,
     );
 
     if (response.status === "success") {
@@ -71,9 +78,13 @@ const AuthScreen = ({ navigation }: AuthScreenProps) => {
         return (
           <View>
             <Text style={styles.appName}>My Travel Companion</Text>
-            <Button onPress={nextPage} mode="contained">
-              Get Started
-            </Button>
+            {userContext.isAccountLoading ? (
+              <ActivityIndicator size={40} color="#6750a4" />
+            ) : (
+              <Button onPress={nextPage} mode="contained">
+                Get Started
+              </Button>
+            )}
           </View>
         );
       case 1:
@@ -137,6 +148,17 @@ const AuthScreen = ({ navigation }: AuthScreenProps) => {
                   <IconButton icon={"arrow-left"} onPress={prevPage} />
                 )}
               </View>
+            )}
+            {environment === ENV.DEV && (
+              <IconButton
+                icon={"close"}
+                onPress={() => {
+                  setIsModalVisible(false);
+                  setTimeout(() => {
+                    setIsModalVisible(true);
+                  }, 1000);
+                }}
+              />
             )}
             <View style={styles.modalContent}>{renderPage(page)}</View>
           </View>

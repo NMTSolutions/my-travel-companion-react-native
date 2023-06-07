@@ -34,11 +34,12 @@ const CompanionTile = ({ account }: { account: IAccount }) => {
       onPress={() => {}}
     >
       <View style={styles.iconSet}>
-        <Avatar.Image
+        <Avatar.Text
           size={50}
-          source={{
-            uri: "https://randomuser.me/api/portraits/men/36.jpg",
-          }}
+          label={account.displayName[0]}
+          // source={{
+          //   uri: "https://randomuser.me/api/portraits/men/36.jpg",
+          // }}
         />
         <View style={styles.profileInfo}>
           <Text style={styles.greet}>{account.username}</Text>

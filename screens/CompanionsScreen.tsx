@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
 import {
+  Text,
   View,
   SafeAreaView,
   StatusBar,
@@ -7,7 +8,6 @@ import {
   ActivityIndicator,
   FlatList,
 } from "react-native";
-import Text from "../components/Text";
 import BottomNavigation from "../components/BottomNavigation";
 import {
   NavigationProp,
@@ -185,12 +185,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#ece7e5",
     height: "100%",
     position: "relative",
-    paddingTop: StatusBar.currentHeight,
+    // paddingTop: StatusBar.currentHeight,
   },
   subContainer: {
     // height: "100%",
     width: "100%",
-    padding: 20,
+    paddingTop: 20,
+    paddingLeft: 20,
+    paddingRight: 20,
     paddingBottom: 85,
   },
   subheading: { color: "grey", marginTop: 5, marginBottom: 10 },
