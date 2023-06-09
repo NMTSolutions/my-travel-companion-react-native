@@ -1,6 +1,13 @@
 import React, { useContext, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { ActivityIndicator, Avatar, IconButton } from "react-native-paper";
+import {
+  ActivityIndicator,
+  Avatar,
+  Button,
+  Dialog,
+  IconButton,
+  Portal,
+} from "react-native-paper";
 import TravelContext, {
   IAccount,
   ICompanion,
@@ -21,6 +28,7 @@ const ExpandableTile = ({
   const [isAcceptingRequest, setIsAcceptingRequest] = useState(false);
   const [isRejectingRequest, setIsRejectingRequest] = useState(false);
   const [isRemovingCompanion, setIsRemovingCompanion] = useState(false);
+  const [visible, setVisible] = useState(false);
 
   const travelContext = useContext(TravelContext);
 
@@ -39,13 +47,24 @@ const ExpandableTile = ({
   };
 
   const handleSearchCompanionTap = () => {
-    navigate?.(Routes.FindCompanion, { name: companion.displayName });
+    const lostCompanion = travelContext.myLostCompanions.find(
+      (comp) => comp.companion.id === companion.id,
+    );
+    if (lostCompanion) {
+      navigate?.(Routes.FindCompanion, lostCompanion);
+    } else {
+      setVisible(true);
+    }
   };
 
   const removeCompanion = async () => {
     setIsRemovingCompanion(true);
     await travelContext.removeCompanion(companion as ICompanion);
     setIsRemovingCompanion(false);
+  };
+
+  const hideDialog = () => {
+    setVisible(false);
   };
 
   return (
@@ -134,6 +153,23 @@ const ExpandableTile = ({
           )}
         </>
       )}
+      <Portal>
+        <Dialog visible={visible} onDismiss={hideDialog}>
+          <Dialog.Title>Not Lost</Dialog.Title>
+          <Dialog.Content>
+            <Text>{companion.displayName} have not marked themself lost.</Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button
+              mode="contained"
+              style={{ width: 100 }}
+              onPress={hideDialog}
+            >
+              Okay
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </>
   );
 };

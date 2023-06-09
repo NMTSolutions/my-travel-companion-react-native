@@ -214,6 +214,9 @@ const DashboardScreen = ({ navigation }: IDashboardProps) => {
                 case "mark-found":
                   showDialog();
                   break;
+                case "search-lost-companions":
+                  navigate(Routes.MyCompanions);
+                  break;
                 default:
               }
             }}

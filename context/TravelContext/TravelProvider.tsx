@@ -31,7 +31,7 @@ import { firestore } from "../../firebase";
 
 const TravelProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLost, setIsLost] = useState(false);
-  const [lostComapnion, setLostCompanion] = useState<ILostCompanion | null>(
+  const [lostCompanion, setLostCompanion] = useState<ILostCompanion | null>(
     null,
   );
   const [searchedAccounts, setSearchedAccounts] = useState<IAccount[]>([]);
@@ -442,10 +442,47 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
 
       await sendNotification(companion.id, notification);
 
+      const oppCompanionLostCompanionsDocRef = doc(
+        firestore,
+        "myLostCompanions",
+        companion.id,
+      );
+      const oppCompanionLostCompanionsCollectionRef = collection(
+        oppCompanionLostCompanionsDocRef,
+        "lostCompanions",
+      );
+
+      const lostCompanionsDeleteQuery = query(
+        oppCompanionLostCompanionsCollectionRef,
+        where("companion.id", "==", myAccount?.id),
+      );
+
+      const lostCompanionsquerySnapshot = await getDocs(
+        lostCompanionsDeleteQuery,
+      );
+
+      for (const docSnap of lostCompanionsquerySnapshot.docs) {
+        const docRef = doc(
+          firestore,
+          "myLostCompanions",
+          companion.id,
+          "lostCompanions",
+          docSnap.id,
+        );
+
+        await deleteDoc(docRef);
+      }
+
       await batch.commit();
 
       setMyCompanions((prevCompanions) =>
         prevCompanions.filter((comp) => comp.id !== companion.id),
+      );
+
+      setMyLostCompanions((prevLostCompanions) =>
+        prevLostCompanions.filter(
+          (lostComp) => lostComp.companion.id !== companion.id,
+        ),
       );
 
       return { status: "success" } as ITravelResponse;
@@ -514,7 +551,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
 
         const notification: INotification = {
           type: NotificationType.LostNotification,
-          message: `${lostComapnion?.companion.displayName} marked themself as lost.`,
+          message: `${lostCompanion?.companion.displayName} marked themself as lost.`,
           time: serverTimestamp(),
           isRead: false,
         };
@@ -580,7 +617,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
 
         const notification: INotification = {
           type: NotificationType.FoundNotification,
-          message: `${lostComapnion?.companion.displayName} marked themself as found.`,
+          message: `${lostCompanion?.companion.displayName} marked themself as found.`,
           time: serverTimestamp(),
           isRead: false,
         };
