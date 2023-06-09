@@ -32,7 +32,7 @@ import { firestore } from "../../firebase";
 const TravelProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLost, setIsLost] = useState(false);
   const [lostComapnion, setLostCompanion] = useState<ILostCompanion | null>(
-    null
+    null,
   );
   const [searchedAccounts, setSearchedAccounts] = useState<IAccount[]>([]);
   const [companionsRequests, setCompanionsRequests] = useState<
@@ -41,21 +41,21 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
   const [myCompanions, setMyCompanions] = useState<ICompanion[]>([]);
   const [myNotifications, setMyNotifications] = useState<INotification[]>([]);
   const [myLostCompanions, setMyLostCompanions] = useState<ILostCompanion[]>(
-    []
+    [],
   );
 
   const userContext = useContext(UserContext);
 
   const sendNotification = async (
     toUid: string,
-    notification: INotification
+    notification: INotification,
   ) => {
     try {
       const companionNotifRef = doc(firestore, "myNotifications", toUid);
 
       const companionNotifCollection = collection(
         companionNotifRef,
-        "notifications"
+        "notifications",
       );
 
       const notifRef = await addDoc(companionNotifCollection, notification);
@@ -74,11 +74,11 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
       const notificationsDocRef = doc(
         firestore,
         "myNotifications",
-        user?.uid ?? ""
+        user?.uid ?? "",
       );
       const notificationsCollectionRef = collection(
         notificationsDocRef,
-        "notifications"
+        "notifications",
       );
       const dataSnapshot = await getDocs(notificationsCollectionRef);
 
@@ -109,12 +109,12 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
           "myNotifications",
           user?.uid ?? "",
           "notifications",
-          notificationId
+          notificationId,
         ),
         {
           isRead: true,
         },
-        { merge: true }
+        { merge: true },
       );
       return { status: "success" } as ITravelResponse;
     } catch (error: any) {
@@ -134,9 +134,9 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
           where(
             "phoneNumber",
             "==",
-            searchKey.includes("+91") ? searchKey : `+91${searchKey}`
-          )
-        )
+            searchKey.includes("+91") ? searchKey : `+91${searchKey}`,
+          ),
+        ),
       );
 
       const documentSnapshot = await getDocs(searchQuery);
@@ -154,7 +154,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
             acc.id !== user?.uid &&
             companionsRequests.findIndex((req) => req.id === acc.id) === -1 &&
             myCompanions.findIndex((companion) => companion.id === acc.id) ===
-              -1
+              -1,
         );
         searchedAccounts = filteredAccounts;
         setSearchedAccounts(filteredAccounts);
@@ -208,7 +208,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
       const accountDocRef = doc(
         firestore,
         "companionRequests",
-        user?.uid ?? ""
+        user?.uid ?? "",
       );
       const requestCollectionRef = collection(accountDocRef, "requests");
 
@@ -242,7 +242,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
       const companionsDocRef = doc(firestore, "myCompanions", user?.uid ?? "");
       const companionsCollectionRef = collection(
         companionsDocRef,
-        "companions"
+        "companions",
       );
 
       const docRef = await addDoc(companionsCollectionRef, {
@@ -254,7 +254,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
       const oppCompanionDocRef = doc(firestore, "myCompanions", request.id);
       const oppCompanionCollectionRef = collection(
         oppCompanionDocRef,
-        "companions"
+        "companions",
       );
 
       // const oppData = await addDoc(oppFriendsCollectionRef, {
@@ -274,7 +274,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
         "companionRequests",
         user?.uid ?? "",
         "requests",
-        request.companionRequestId
+        request.companionRequestId,
       );
       await deleteDoc(companionsRequestDocRef);
 
@@ -282,16 +282,16 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
       const oppFriendsRequestDocRef = doc(
         firestore,
         "companionRequests",
-        request.id
+        request.id,
       );
       const oppFriendsRequestCollectionRef = collection(
         oppFriendsRequestDocRef,
-        "requests"
+        "requests",
       );
 
       const deleteQuery = query(
         oppFriendsRequestCollectionRef,
-        where("id", "==", myAccount?.id)
+        where("id", "==", myAccount?.id),
       );
       const querySnapshot = await getDocs(deleteQuery);
 
@@ -301,7 +301,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
           "companionRequests",
           request.id,
           "requests",
-          docSnap.id
+          docSnap.id,
         );
         await deleteDoc(docRef);
       }
@@ -335,7 +335,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
         "companionRequests",
         user?.uid ?? "",
         "requests",
-        request.companionRequestId
+        request.companionRequestId,
       );
       await deleteDoc(companionRequestDocRef);
 
@@ -350,8 +350,8 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
 
       setCompanionsRequests((prevRequests) =>
         prevRequests.filter(
-          (requestAccount) => requestAccount.id !== request.id
-        )
+          (requestAccount) => requestAccount.id !== request.id,
+        ),
       );
       return { status: "success" } as ITravelResponse;
     } catch (error: any) {
@@ -367,7 +367,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
       const companionsDocRef = doc(firestore, "myCompanions", user?.uid ?? "");
       const companionsCollectionRef = collection(
         companionsDocRef,
-        "companions"
+        "companions",
       );
       const dataSnapshot = await getDocs(companionsCollectionRef);
 
@@ -401,7 +401,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
         "myCompanions",
         user?.uid ?? "",
         "companions",
-        companion.companionId
+        companion.companionId,
       );
 
       await deleteDoc(companionDocRef);
@@ -411,12 +411,12 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
       const oppCompanionDocRef = doc(firestore, "myCompanions", companion.id);
       const oppCompanionCollectionRef = collection(
         oppCompanionDocRef,
-        "companions"
+        "companions",
       );
 
       const deleteQuery = query(
         oppCompanionCollectionRef,
-        where("id", "==", myAccount?.id)
+        where("id", "==", myAccount?.id),
       );
 
       const querySnapshot = await getDocs(deleteQuery);
@@ -427,7 +427,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
           "myCompanions",
           companion.id,
           "companions",
-          docSnap.id
+          docSnap.id,
         );
 
         await deleteDoc(docRef);
@@ -445,7 +445,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
       await batch.commit();
 
       setMyCompanions((prevCompanions) =>
-        prevCompanions.filter((comp) => comp.id !== companion.id)
+        prevCompanions.filter((comp) => comp.id !== companion.id),
       );
 
       return { status: "success" } as ITravelResponse;
@@ -472,16 +472,16 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
         const oppCompanionLostCompanionsDocRef = doc(
           firestore,
           "myLostCompanions",
-          companion.id
+          companion.id,
         );
         const oppCompanionLostCompanionsCollectionRef = collection(
           oppCompanionLostCompanionsDocRef,
-          "lostCompanions"
+          "lostCompanions",
         );
 
         const deleteQuery = query(
           oppCompanionLostCompanionsCollectionRef,
-          where("companion.id", "==", myAccount?.id)
+          where("companion.id", "==", myAccount?.id),
         );
 
         const querySnapshot = await getDocs(deleteQuery);
@@ -492,7 +492,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
             "myLostCompanions",
             companion.id,
             "lostCompanions",
-            docSnap.id
+            docSnap.id,
           );
 
           await deleteDoc(docRef);
@@ -502,12 +502,12 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
         const lostCompanionsDocRef = doc(
           firestore,
           "myLostCompanions",
-          companion.id
+          companion.id,
         );
 
         const lostCompanionsCollectionRef = collection(
           lostCompanionsDocRef,
-          "lostCompanions"
+          "lostCompanions",
         );
 
         const docRef = await addDoc(lostCompanionsCollectionRef, lostCompanion);
@@ -552,16 +552,16 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
         const oppCompanionLostCompanionsDocRef = doc(
           firestore,
           "myLostCompanions",
-          companion.id
+          companion.id,
         );
         const oppCompanionLostCompanionsCollectionRef = collection(
           oppCompanionLostCompanionsDocRef,
-          "lostCompanions"
+          "lostCompanions",
         );
 
         const deleteQuery = query(
           oppCompanionLostCompanionsCollectionRef,
-          where("companion.id", "==", myAccount?.id)
+          where("companion.id", "==", myAccount?.id),
         );
 
         const querySnapshot = await getDocs(deleteQuery);
@@ -572,7 +572,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
             "myLostCompanions",
             companion.id,
             "lostCompanions",
-            docSnap.id
+            docSnap.id,
           );
 
           await deleteDoc(docRef);
@@ -610,11 +610,11 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
       const lostCompanionsDocRef = doc(
         firestore,
         "myLostCompanions",
-        user?.uid ?? ""
+        user?.uid ?? "",
       );
       const lostCompanionsCollectionRef = collection(
         lostCompanionsDocRef,
-        "lostCompanions"
+        "lostCompanions",
       );
       const dataSnapshot = await getDocs(lostCompanionsCollectionRef);
 
@@ -657,7 +657,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
             } as ICompanionRequest;
           });
           setCompanionsRequests(myReceivedCRs);
-        }
+        },
       );
 
       const unsubscribeMyCompanions = onSnapshot(
@@ -668,7 +668,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
             return { ...cmp, companionId: companion.id } as ICompanion;
           });
           setMyCompanions(myCompanios);
-        }
+        },
       );
 
       const unsubscribeNotifications = onSnapshot(
@@ -679,7 +679,7 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
             return { ...notification, id: notif.id } as INotification;
           });
           setMyNotifications(myNotifications);
-        }
+        },
       );
 
       const unsubscribeMyLostCompanions = onSnapshot(
@@ -692,10 +692,10 @@ const TravelProvider = ({ children }: { children: React.ReactNode }) => {
                 ...lostCmp,
                 lostCompanionId: lostCompanions.id,
               } as ILostCompanion;
-            }
+            },
           );
           setMyLostCompanions(myLostCompanions);
-        }
+        },
       );
 
       return () => {

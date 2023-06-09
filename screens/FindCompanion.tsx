@@ -13,7 +13,7 @@ import {
   RouteProp,
 } from "@react-navigation/native";
 import { RootStackParamList, Routes } from "../routes/availableRoutes";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 
 interface IFindCompanionScreenProps {
   navigation: NavigationProp<ParamListBase>;
@@ -34,6 +34,8 @@ const FindCompanion = ({ navigation, route }: IFindCompanionScreenProps) => {
         <View style={{ flex: 1 }}>
           <MapView
             style={styles.map}
+            provider={PROVIDER_GOOGLE}
+            showsUserLocation
             initialRegion={{
               latitude: lostCompanion.coordinates.latitude,
               longitude: lostCompanion.coordinates.longitude,
@@ -68,7 +70,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ece7e5",
     height: "100%",
     position: "relative",
-    paddingTop: StatusBar.currentHeight,
+    // paddingTop: StatusBar.currentHeight,
     flex: 1,
   },
   subContainer: {

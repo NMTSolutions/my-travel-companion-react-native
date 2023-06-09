@@ -11,9 +11,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "googleServicesFile": "./google-services.plist"
@@ -24,7 +22,10 @@
         "foregroundImage": "./assets/splash.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.mytravelcompanion.com"
+      "package": "com.mytravelcompanion.com",
+      "config": {
+        "googleMaps": { "apiKey": "AIzaSyBHuVJYCyMfXOG4iqSS8qd-xbbg-EhcdV8" }
+      }
     },
     "extra": {
       "firebase": {

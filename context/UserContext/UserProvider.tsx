@@ -53,8 +53,8 @@ const UserProvider = ({
       if (user) {
         setUser(user);
         const myAcc = await searchUser(user.uid);
-        setIsAuthenticated(true);
         setMyAccount(myAcc);
+        setIsAuthenticated(true);
       } else {
         setUser(null);
       }
